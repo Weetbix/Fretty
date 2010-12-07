@@ -28,6 +28,7 @@ public class Background_Reduction implements PlugInFilter
 	{
 		short[] pixels = (short[]) ip.getPixels();
 		Rectangle selection = ip.getRoi();
+		ip.resetRoi();					//Act on the whole image..
 
 		//Find the mean value of all the pixels in the selection
 		long total = 0;
@@ -47,31 +48,10 @@ public class Background_Reduction implements PlugInFilter
 		total = ( total / (selection.width*selection.height));
 		short average = (short) total;
 
-		//Remove the background values from the image
-		for( int i = 0; i < ip.getWidth() * ip.getHeight(); i++ )
-		{
-			if( pixels[i] > 0 ) 
-			{
-				pixels[ i ] -= average;
-			
-				//if the pixel value is below 0, it will be -1 etc. And ImageJ doesn't like this
-				//because it seems to treat the signed short as unsigned when dispalying so
-				//-1 becomes 65000 etc (white)
-				f( pixels[i] < 0 ) pixels[i] = 0;
-			}
-			else
-			{
-				//The pixels value is negative, so add the average instead of deducting it..
-				pixels[i] += average;
-				//If the pixel was negative before, and has crossed into +, then it the real
-				//pixel value is somewhere close to Short.MAX_VALUE - NOT 0!
-				if( pixels[i] > 0 ) pixels[i] = Short.MAX_VALUE - pixels[i]
-			}
-		}
+		//Remove the average value from all pixels 
+		ip.add( -average );
 
 		imp.updateAndDraw();
 	}
-
-
 
 }
