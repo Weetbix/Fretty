@@ -5,6 +5,10 @@ import java.awt.*;
 import ij.plugin.*;
 import ij.plugin.filter.*;
 
+//Note: Only does 16 bit grayscale images for now. Because the imagej image types return 
+//	different array types which you must cast to your own time. I'm going to code a plugin
+//	which changes all the images to one generic type, maybe a float image. 
+
 public class Background_Reduction implements PlugInFilter 
 {
 	private final static int requirements = 	DOES_ALL  
@@ -34,25 +38,36 @@ public class Background_Reduction implements PlugInFilter
 
 			for( int x = selection.x; x < selection.x + selection.width; x++ )
 			{
-				//Javas shorts are always signed :( need to convert with a binary AND
+				//javas shorts are all signed, so use binary AND to get rid 
+				//of the signed bits before we add to the total.... Really high numbers will be negative 
 				total += (long) (pixels[ offset + x ] & 0xFFFF);
 			}
 		}
 		//calculate the actual mean
 		total = ( total / (selection.width*selection.height));
 		short average = (short) total;
-		
-		IJ.showMessage( "Some val", Short.toString( pixels[100] ) );
+
 		//Remove the background values from the image
 		for( int i = 0; i < ip.getWidth() * ip.getHeight(); i++ )
 		{
-		//	pixels[ i ] -= average;
+			if( pixels[i] > 0 ) 
+			{
+				pixels[ i ] -= average;
+			
+				//if the pixel value is below 0, it will be -1 etc. And ImageJ doesn't like this
+				//because it seems to treat the signed short as unsigned when dispalying so
+				//-1 becomes 65000 etc (white)
+				f( pixels[i] < 0 ) pixels[i] = 0;
+			}
+			else
+			{
+				//The pixels value is negative, so add the average instead of deducting it..
+				pixels[i] += average;
+				//If the pixel was negative before, and has crossed into +, then it the real
+				//pixel value is somewhere close to Short.MAX_VALUE - NOT 0!
+				if( pixels[i] > 0 ) pixels[i] = Short.MAX_VALUE - pixels[i]
+			}
 		}
-
-		pixels[100] = -1;
-		IJ.showMessage("AFter..", Short.toString(pixels[100]) );
-
-		IJ.showMessage( "Average:", Short.toString(average));
 
 		imp.updateAndDraw();
 	}
