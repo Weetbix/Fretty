@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import ij.plugin.frame.*;
 
-class Mean_Generator implements ActionListener
+class MeanGenerator implements ActionListener
 {
 	public void actionPerformed( ActionEvent e )
 	{
@@ -42,7 +42,7 @@ public class Spectrum_Manager extends PlugInFrame {
 		add( ROIOpener );
 
 		Button meanGenerator = new Button( "Calculate Spectrum" );
-		meanGenerator.addActionListener( new Mean_Generator() );
+		meanGenerator.addActionListener( new MeanGenerator() );
 		add( meanGenerator );
 
 		pack();
