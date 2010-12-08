@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.*;
 import ij.plugin.frame.*;
 
+import ij.io.*;
+
 import ij.measure.*;
 
 //Generates a spectrum from the current image stack. The spectrum is
@@ -61,6 +63,21 @@ class SpectrumGenerator implements ActionListener
 	}
 }
 
+//The class/callback etc for the Load spectrum button
+class LoadSpectrumFromFile implements ActionListener
+{
+	public void actionPerformed( ActionEvent e )
+	{
+		OpenDialog od = new OpenDialog("Select a spectrum file", "");
+
+		//If they didnt open a file, quit. 
+		if( od.getFileName() == null ) return;
+
+		Spectrum spectrum = new Spectrum();
+		spectrum.loadFromFile( od.getDirectory() + od.getFileName() );
+	}
+}
+
 public class Spectrum_Manager extends PlugInFrame {
 
 	public Spectrum_Manager () 
@@ -92,6 +109,10 @@ public class Spectrum_Manager extends PlugInFrame {
 		Button meanGenerator = new Button( "Calculate Spectrum" );
 		meanGenerator.addActionListener( new SpectrumGenerator() );
 		add( meanGenerator );
+
+		Button loadSpectrum = new Button( "Load Spectrum" );
+		loadSpectrum.addActionListener( new LoadSpectrumFromFile() );
+		add( loadSpectrum );
 
 		pack();
 		GUI.center(this);
