@@ -10,6 +10,7 @@ import ij.measure.*;
 //Generates a spectrum from the current image stack. The spectrum is
 //calculated as the total of all the mean values of the ROIs for the current slice.
 //Outputs them as a table, for all slices.
+//Works on ALL Rois in the ROI manager regardless of whether or not they are selected
 class SpectrumGenerator implements ActionListener
 {
 	private RoiManager roi;
@@ -36,15 +37,16 @@ class SpectrumGenerator implements ActionListener
 		resultsWindow.reset(); 
 
 		ImageStatistics stats;
+		Roi[] selections = roi.getRoisAsArray();
 		for( int i = 1; i <= imp.getStackSize(); i++ )
 		{
+			imp.setSliceWithoutUpdate( i );
 			double total = 0;
 			for( int roi_num = 0; roi_num < roi.getCount(); roi_num++ )
 			{
 				//For each ROI in the current slice, find the mean value
-				roi.select( roi_num );
-				imp.setSliceWithoutUpdate( i );
-
+				imp.setRoi( selections[roi_num], false );
+	
 				//Maybe slow? Seems to calculate the other stats even though we 
 				//only asked it to calculate the mean. 
 				stats = imp.getStatistics( Measurements.MEAN );
