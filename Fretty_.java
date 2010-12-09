@@ -149,6 +149,12 @@ public class Fretty_ extends PlugInFrame
 		add( new FrettyReferenceSpectraPanel() );
 		add( new FrettyFRETSamplesPanel() );
 
+		JPanel p = new JPanel();
+			p.add( new JButton( "Create FRET image" ) );
+			p.add( new JButton( "ROI FRET Value" ) );
+
+		add( p );
+
 		pack();
 		GUI.center(this);
 		setVisible( true );
