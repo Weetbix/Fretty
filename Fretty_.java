@@ -32,12 +32,12 @@ class FrettyTopPanel extends JPanel
 
 		add( new JLabel( "Donor quantum yield" ) );
 		JSpinner donorQuantumYield = new JSpinner( 
-					new SpinnerNumberModel( (double)150, 0, 40000, 0.0001 ) );
+					new SpinnerNumberModel( (double)150, 0, 40000, 0.001 ) );
 		add( donorQuantumYield );
 
 		add( new JLabel( "Acceptor quantum yield" ) );
 		JSpinner acceptorQuantumYield = new JSpinner( 
-					new SpinnerNumberModel( (double)150, 0, 40000, 0.0001 ) );
+					new SpinnerNumberModel( (double)150, 0, 40000, 0.001 ) );
 		add( acceptorQuantumYield );
 	}
 }
@@ -99,15 +99,19 @@ class FrettyFRETSamplesPanel extends JPanel
 	public FrettyFRETSamplesPanel()
 	{
 		setBorder( new TitledBorder("FRET Samples") );
-		setLayout( new BoxLayout( this, BoxLayout.X_AXIS) ); 
+		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS) ); 
 	
 		Panel p1 = new Panel();
 		p1.add( new Button("Build Mega Stack") );
 		p1.add( new TextField(15) );
-
 		add(p1);
+
+		add( new JCheckBox("Include megastacks") );
+
+		add( new JButton("Indicate donor excitation stack") );
+		add( new JButton("Indicate acceptor excitation stack" ) );
 		
-		add( new Button("dfdf") );	
+		//add( new Button("dfdf") );	
 	}
 }
 
