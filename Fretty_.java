@@ -47,8 +47,8 @@ class FrettyCommonPanel extends JPanel
 	public FrettyCommonPanel()
 	{
 		setBorder( new TitledBorder("Common Tools") );
-		add( new Button("Open ROI Manager") );
-		add( new Button("Background Reduction" ) );
+		add( new JButton("Open ROI Manager") );
+		add( new JButton("Background Reduction" ) );
 	}
 }
 
@@ -67,11 +67,11 @@ class FrettyReferenceSpectraPanel extends JPanel
 
 class FrettySpectraSelector extends JPanel
 {
-	Label label = new Label("SDD");
-	Button load = new Button( "Load" );
-	Button create = new Button( "Create" );
-	Button save = new Button( "Save" );
-	Button view = new Button( "View" );
+	JLabel label = new JLabel("SDD");
+	JButton load = new JButton( "Load" );
+	JButton create = new JButton( "Create" );
+	JButton save = new JButton( "Save" );
+	JButton view = new JButton( "View" );
 
 	public FrettySpectraSelector()
 	{	
@@ -101,9 +101,9 @@ class FrettyFRETSamplesPanel extends JPanel
 		setBorder( new TitledBorder("FRET Samples") );
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS) ); 
 	
-		Panel p1 = new Panel();
-		p1.add( new Button("Build Mega Stack") );
-		p1.add( new TextField(15) );
+		JPanel p1 = new JPanel();
+		p1.add( new JButton("Build Mega Stack") );
+		p1.add( new JTextField(15) );
 		add(p1);
 
 		add( new JCheckBox("Include megastacks") );
