@@ -96,22 +96,32 @@ class FrettySpectraSelector extends JPanel
 
 class FrettyFRETSamplesPanel extends JPanel
 {
+	private static final Insets insets = new Insets( 5,5,5,5 );
+	public Insets getInsets() { return insets; }
 	public FrettyFRETSamplesPanel()
 	{
 		setBorder( new TitledBorder("FRET Samples") );
-		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS) ); 
-	
+;
+		setLayout( new GridBagLayout() );
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+
 		JPanel p1 = new JPanel();
+		p1.setOpaque( false );
 		p1.add( new JButton("Build Mega Stack") );
-		p1.add( new JTextField(15) );
-		add(p1);
-
-		add( new JCheckBox("Include megastacks") );
-
-		add( new JButton("Indicate donor excitation stack") );
-		add( new JButton("Indicate acceptor excitation stack" ) );
+			JPanel wildcardPanel = new JPanel();
+			wildcardPanel.setLayout( new GridLayout(2,1) );
+			wildcardPanel.setBorder( new TitledBorder("Stack names (wildcard)") );
 		
-		//add( new Button("dfdf") );	
+			wildcardPanel.add( new JTextField(15) );
+			wildcardPanel.add( new JCheckBox("Include megastacks") );
+		p1.add( wildcardPanel );
+		add(p1, c);
+
+		add( new JButton("Indicate donor excitation stack"), c ); 
+		add( new JButton("Indicate acceptor excitation stack" ), c );
 	}
 }
 
