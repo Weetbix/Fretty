@@ -9,6 +9,8 @@ import ij.io.*;
 
 import ij.measure.*;
 
+//TODO: I THINK this class and infact this entire GUI is redundant now... with the complete gui in place
+
 //Generates a spectrum from the current image stack. The spectrum is
 //calculated as the total of all the mean values of the ROIs for the current slice.
 //Outputs them as a table, for all slices.

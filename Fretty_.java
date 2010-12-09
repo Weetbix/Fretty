@@ -14,15 +14,33 @@ import javax.swing.plaf.*;
 //The panel at the top of the gui screen...
 class FrettyTopPanel extends JPanel
 {
+	Fretty_ mainGUI;
+
 	//Padding
 	private static final Insets insets = new Insets( 10,10,10,10 );
 	public Insets getInsets() { return insets; }
 
-	public FrettyTopPanel()
+	public FrettyTopPanel( Fretty_ frettyGUI )
 	{
+		mainGUI = frettyGUI;
+
+		//CROSS EXCITATION check box
 		setLayout( new GridLayout( 4, 2 ) );
 		add( new JLabel( "Cross Excitation Correction" ) );
 		JCheckBox crossCorrection = new JCheckBox();
+		crossCorrection.setSelected( true );
+		crossCorrection.addActionListener( 
+			new ActionListener(){
+				public void actionPerformed( ActionEvent actionEvent ){
+					AbstractButton b = (AbstractButton) actionEvent.getSource();
+					if( b.getModel().isSelected() )
+						mainGUI.enableCrossExcitationCorrection(true);
+					else
+						mainGUI.enableCrossExcitationCorrection( false );
+				}
+			});
+				
+				
 		add( crossCorrection );
 
 		add( new JLabel("Wavelengths Per Sample  " ) );
@@ -54,34 +72,68 @@ class FrettyCommonPanel extends JPanel
 
 class FrettyReferenceSpectraPanel extends JPanel
 {
+	FrettySpectraSelector SDD;
+	FrettySpectraSelector SAD;
+	FrettySpectraSelector SAA;
+
 	public FrettyReferenceSpectraPanel()
 	{
 		setBorder( new TitledBorder("Reference Spectra") );
 		
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) ); 
-		add( new FrettySpectraSelector() );
-		add( new FrettySpectraSelector() );
-		add( new FrettySpectraSelector() );
+		SDD =  new FrettySpectraSelector( "SDD" );
+		SAD = 	new FrettySpectraSelector( "SAD" );
+		SAA = 	new FrettySpectraSelector( "SAA" );
+
+		add( SDD );
+		add( SAD );
+		add( SAA );
+	}
+
+	//If there is no cross excitation correct, you dont need the SAA spectrum..
+	public void enableCrossExcitationCorrection( boolean yesno )
+	{
+		SAA.setEnabled( yesno );
 	}
 }
 
 class FrettySpectraSelector extends JPanel
 {
-	JLabel label = new JLabel("SDD");
+	JLabel label;
 	JButton load = new JButton( "Load" );
 	JButton create = new JButton( "Create" );
 	JButton save = new JButton( "Save" );
 	JButton view = new JButton( "View" );
 
-	public FrettySpectraSelector()
+	//The actual spectrum object associated with this GUI panel
+	Spectrum spectrum;
+
+	public FrettySpectraSelector( String spectrumName )
 	{	
+		label = new JLabel( spectrumName );
+		label.setForeground( Color.red ); 
+
+		create.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent actionEvent ){
+				if( spectrum == null ) 
+					setSpectrum( SpectrumGenerator.generateFromROI() );
+				else 
+				{
+					//We dont want to accidentally erase the spectrum they have already
+					//added if they click create and there is an error (eg ROI man isnt open)
+					Spectrum s = SpectrumGenerator.generateFromROI();
+					if( s != null ) 
+						setSpectrum( s );
+				}
+			}
+		});
+
 		add( label );
-		add( load );
 		add( create );
+		add( load );
 		add( save );
 		add( view );
-
-		setEnabled( false );
+		add( new JButton("Clear") );
 	}
 
 	public void setEnabled( boolean b ) 
@@ -92,12 +144,28 @@ class FrettySpectraSelector extends JPanel
 		save.setEnabled( b );
 		view.setEnabled( b );
 	}
+
+	//Sets the spectrum associated with this GUI panel.
+	//If the spectrum is set to null then the text will go red, if the spectrum is okay
+	//to use the text will go green.
+	public void setSpectrum( Spectrum spec )
+	{
+		spectrum = spec;
+		if( spectrum == null )
+			label.setForeground( Color.red );
+		else
+			label.setForeground( Color.green );
+	}
 }
 
 class FrettyFRETSamplesPanel extends JPanel
 {
+	private JButton donorStackButton;
+	private JButton acceptorStackButton;
+
 	private static final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
+
 	public FrettyFRETSamplesPanel()
 	{
 		setBorder( new TitledBorder("FRET Samples") );
@@ -120,13 +188,25 @@ class FrettyFRETSamplesPanel extends JPanel
 		p1.add( wildcardPanel );
 		add(p1, c);
 
-		add( new JButton("Indicate donor excitation stack"), c ); 
-		add( new JButton("Indicate acceptor excitation stack" ), c );
+		donorStackButton = new JButton("Indicate donor excitation stack");
+		acceptorStackButton = new JButton("Indicate acceptor excitation stack" );
+		add( donorStackButton, c );
+		add( acceptorStackButton, c );
+	}
+
+	public void enableCrossExcitationCorrection( boolean yesno )
+	{
+		acceptorStackButton.setEnabled( yesno );
 	}
 }
 
 public class Fretty_ extends PlugInFrame 
 {
+	FrettyTopPanel 			topPanel;
+	FrettyCommonPanel 			commonPanel;
+	FrettyReferenceSpectraPanel		referenceSpectraPanel;
+	FrettyFRETSamplesPanel 		FRETSamplesPanel;
+
 	public Fretty_ () 
 	{
 		super("Fretty");
@@ -144,10 +224,15 @@ public class Fretty_ extends PlugInFrame
 		}
 		catch(Exception e ){};
 
-		add( new FrettyTopPanel() );
-		add( new FrettyCommonPanel() );
-		add( new FrettyReferenceSpectraPanel() );
-		add( new FrettyFRETSamplesPanel() );
+		topPanel = new FrettyTopPanel(this);
+		commonPanel = new FrettyCommonPanel();
+		referenceSpectraPanel = new FrettyReferenceSpectraPanel();
+		FRETSamplesPanel = new FrettyFRETSamplesPanel();
+
+		add( topPanel ); 
+		add( commonPanel );
+		add( referenceSpectraPanel );
+		add( FRETSamplesPanel );
 
 		JPanel p = new JPanel();
 			p.add( new JButton( "Create FRET image" ) );
@@ -158,5 +243,13 @@ public class Fretty_ extends PlugInFrame
 		pack();
 		GUI.center(this);
 		setVisible( true );
+	}
+
+	//Called whenever the checkbox to select this option is changed. 
+	public void enableCrossExcitationCorrection( boolean yesno )
+	{
+		//Inform the appropriate sub panels that we dont want cross excitation
+		referenceSpectraPanel.enableCrossExcitationCorrection( yesno );
+		FRETSamplesPanel.enableCrossExcitationCorrection( yesno );
 	}
 }
