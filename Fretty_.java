@@ -65,8 +65,35 @@ class FrettyCommonPanel extends JPanel
 	public FrettyCommonPanel()
 	{
 		setBorder( new TitledBorder("Common Tools") );
-		add( new JButton("Open ROI Manager") );
-		add( new JButton("Background Reduction" ) );
+		
+		//Opens the ROI manager
+		JButton roiMan = new JButton( "Open ROI Manager" );
+		roiMan.addActionListener( 
+			new ActionListener(){ 
+				public void actionPerformed( ActionEvent e ) {
+					if( RoiManager.getInstance() == null ) 
+					{
+						IJ.run( "ROI Manager..." );
+					}
+					else
+					{
+						RoiManager.getInstance().setVisible( true );
+					}
+				}
+			} );
+		add( roiMan );
+
+		//Does background reduction on the current stack
+		JButton bgReduction = new JButton( "Background Reduction" );
+		bgReduction.addActionListener(
+			new ActionListener(){
+				public void actionPerformed( ActionEvent e ){
+					IJ.run( "Background Reduction" );
+				}
+			}
+		);
+		
+		add( bgReduction );
 	}
 }
 
@@ -104,6 +131,7 @@ class FrettySpectraSelector extends JPanel
 	JButton create = new JButton( "Create" );
 	JButton save = new JButton( "Save" );
 	JButton view = new JButton( "View" );
+	JButton clear = new JButton( "Clear" );
 
 	//The actual spectrum object associated with this GUI panel
 	Spectrum spectrum;
@@ -113,6 +141,7 @@ class FrettySpectraSelector extends JPanel
 		label = new JLabel( spectrumName );
 		label.setForeground( Color.red ); 
 
+		//CREATE BUTTON
 		create.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent actionEvent ){
 				if( spectrum == null ) 
@@ -128,12 +157,26 @@ class FrettySpectraSelector extends JPanel
 			}
 		});
 
+		//CLEAR BUTTON
+		clear.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent e ){
+				setSpectrum( null );
+			}
+		});
+
+		Insets buttonMargin = new Insets( 2,4,2,4 );
+		create.setMargin( 	buttonMargin  );
+		load.setMargin( 	buttonMargin );
+		save.setMargin( 	buttonMargin );
+		view.setMargin( 	buttonMargin );
+		clear.setMargin( 	buttonMargin );
+
 		add( label );
 		add( create );
 		add( load );
 		add( save );
 		add( view );
-		add( new JButton("Clear") );
+		add( clear );
 	}
 
 	public void setEnabled( boolean b ) 
@@ -143,6 +186,7 @@ class FrettySpectraSelector extends JPanel
 		create.setEnabled( b );
 		save.setEnabled( b );
 		view.setEnabled( b );
+		clear.setEnabled( b );
 	}
 
 	//Sets the spectrum associated with this GUI panel.
