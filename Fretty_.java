@@ -161,8 +161,6 @@ class FrettySpectraSelector extends JPanel
 		//LOAD BUTTON
 		load.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent e ){
-				//JFileChooser od = new JFileChooser();
-				//od.showOpenDialog(this);
 				OpenDialog od = new OpenDialog("Select a spectrum file", "");
 	
 				//Steal the focus back from the main imagej window :(
@@ -172,7 +170,6 @@ class FrettySpectraSelector extends JPanel
 				if( od.getFileName() == null ) return;
 
 				Spectrum loaded_spec = new Spectrum();
-				
 				//Try to load the file and report any error messages
 				try
 				{
@@ -182,6 +179,33 @@ class FrettySpectraSelector extends JPanel
 				catch( Exception ex )
 				{
 					IJ.showMessage( "Couldnt load the spectrum file: " + ex.getMessage() );
+					setSpectrum( null );
+				}
+			}
+		});
+
+		//SAVE BUTTON
+		save.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent e ){
+				if( spectrum != null )
+				{
+					SaveDialog sd = new SaveDialog ("Select a spectrum file", "", ".spec" );
+	
+					//Steal the focus back from the main imagej window :(
+					requestFocus();
+
+					//If they didnt open a file, bail. 
+					if( sd.getFileName() == null ) return;
+
+					//Try to save the file and report any error messages
+					try
+					{
+						spectrum.saveToFile( sd.getDirectory() + sd.getFileName() );
+					}
+					catch( Exception ex )
+					{
+						IJ.showMessage( "Couldnt load the spectrum file: " + ex.getMessage() );
+					}
 				}
 			}
 		});
@@ -235,7 +259,12 @@ class FrettySpectraSelector extends JPanel
 		if( spectrum == null )
 			label.setForeground( Color.red );
 		else
+		{
+			//Empty spectrums do us no good...
+			if( spectrum.getSize() <= 0 ) setSpectrum( null );
+
 			label.setForeground( Color.green );
+		}
 	}
 }
 

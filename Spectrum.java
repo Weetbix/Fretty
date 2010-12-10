@@ -2,6 +2,7 @@ import ij.*;
 import ij.measure.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.*;
 
 //Not synchronised (dont think it matters for now)
 public class Spectrum
@@ -35,13 +36,37 @@ public class Spectrum
 		return values.get( index );
 	}
 
-	public void loadFromFile( String fileName )
+	public void loadFromFile( String fileName ) throws	FileNotFoundException,
+								IOException
 	{
+		clear();
 
+		BufferedReader in = new BufferedReader( new FileReader(fileName) );
+		
+		String line;
+		while( (line = in.readLine()) != null )
+		{
+			addValue( Float.parseFloat(line) );
+		}
+			
+		in.close();
+	}
+
+	public void saveToFile( String fileName ) throws 	FileNotFoundException,
+								IOException
+	{
+		PrintStream ps = new PrintStream( fileName );
+				
+		for( float val : values )
+			ps.println( val );
+
+		ps.close();		
 	}
 
 	public void displayInResultsWindow()
 	{
+		if( values.size() <= 0 ) return;
+
 		ResultsTable window = new ResultsTable();
 		window.reset();
 
