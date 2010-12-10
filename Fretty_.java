@@ -1,4 +1,5 @@
 import ij.*;
+import ij.io.*;
 import ij.process.*;
 import ij.gui.*;
 import java.awt.*;
@@ -155,6 +156,42 @@ class FrettySpectraSelector extends JPanel
 						setSpectrum( s );
 				}
 			}
+		});
+
+		//LOAD BUTTON
+		load.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent e ){
+				//JFileChooser od = new JFileChooser();
+				//od.showOpenDialog(this);
+				OpenDialog od = new OpenDialog("Select a spectrum file", "");
+	
+				//Steal the focus back from the main imagej window :(
+				requestFocus();
+
+				//If they didnt open a file, bail. 
+				if( od.getFileName() == null ) return;
+
+				Spectrum loaded_spec = new Spectrum();
+				
+				//Try to load the file and report any error messages
+				try
+				{
+					loaded_spec.loadFromFile( od.getDirectory() + od.getFileName() );
+					setSpectrum( loaded_spec );
+				}
+				catch( Exception ex )
+				{
+					IJ.showMessage( "Couldnt load the spectrum file: " + ex.getMessage() );
+				}
+			}
+		});
+
+		//VIEW BUTTON
+		view.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent e ){
+				if( spectrum != null ) spectrum.displayInResultsWindow();
+			}
+
 		});
 
 		//CLEAR BUTTON

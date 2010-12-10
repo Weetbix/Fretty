@@ -1,4 +1,5 @@
 import ij.*;
+import ij.measure.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,20 @@ public class Spectrum
 	public void loadFromFile( String fileName )
 	{
 
+	}
+
+	public void displayInResultsWindow()
+	{
+		ResultsTable window = new ResultsTable();
+		window.reset();
+
+		for( float val : values )
+		{
+			window.incrementCounter();
+			window.addValue( "Total Emission Wavelength", val );
+		}
+		
+		window.show( "Spectrum" );
 	}
 
 }
