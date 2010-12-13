@@ -7,7 +7,7 @@ import ij.*;
 public class FRETProcessor 
 {
 	boolean crossExcitationCorrection = true;
-	int wavelengthsPerSample = 0;
+	int wavelengthsPerSample = 5;
 	float donorQuantumYield = 0;
 	float acceptorQuantumYield = 0;
 
@@ -33,9 +33,12 @@ public class FRETProcessor
 		crossExcitationCorrection = yesno;
 	}
 
-	void setWavelengthsPerSample( int wlps )
+	//Must be > 0 (durrrh). Returns false if value not accepted
+	boolean setWavelengthsPerSample( int wlps )
 	{
+		if( wlps <= 0 ) return false;
 		wavelengthsPerSample = wlps;
+		return true;
 	}
 
 	int getWavelengthsPerSample()
@@ -140,10 +143,6 @@ public class FRETProcessor
 				throw new NullPointerException( "No SAA spectrum loaded" );
 		}
 
-		//Think I can do this by throwing in the setters....instead..
-		/*if( donorQuantumYield < 0 || donorQuantumYield > 1 ) 
-			throw new illegalArgumentException( "Donor quantum yield should be between 0 and 1 (inclusive)" );
-
-		if( acceptorQuantumYield*/	
+		
 	}
 }
