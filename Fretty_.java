@@ -51,12 +51,12 @@ class FrettyTopPanel extends JPanel
 
 		add( new JLabel( "Donor quantum yield" ) );
 		JSpinner donorQuantumYield = new JSpinner( 
-					new SpinnerNumberModel( (double)150, 0, 40000, 0.001 ) );
+					new SpinnerNumberModel( (double)0, 0, 1, 0.001 ) );
 		add( donorQuantumYield );
 
 		add( new JLabel( "Acceptor quantum yield" ) );
 		JSpinner acceptorQuantumYield = new JSpinner( 
-					new SpinnerNumberModel( (double)150, 0, 40000, 0.001 ) );
+					new SpinnerNumberModel( (double)0, 0,1, 0.001 ) );
 		add( acceptorQuantumYield );
 	}
 }
@@ -268,13 +268,53 @@ class FrettySpectraSelector extends JPanel
 	}
 }
 
+
 class FrettyFRETSamplesPanel extends JPanel
 {
+	//The two stack selector buttons use this class
+	class StackSelectorButton extends JButton
+	{
+		private ImagePlus stack;
+
+		StackSelectorButton( String title ) 
+		{
+			super( title ); 
+			setStack( null );
+
+			addActionListener( new ActionListener(){
+				public void actionPerformed( ActionEvent e ){
+					setStack( WindowManager.getCurrentImage() );
+				}
+			});
+		}
+
+		public void setStack( ImagePlus newstack) 
+		{
+			//Sets the stack and adjusts the tooltip for the button
+			stack = newstack;
+				
+			if( stack != null )
+			{
+				setToolTipText( "Set to: " + stack.getTitle() );
+				setForeground( Color.green );
+			}
+			else
+			{
+				setToolTipText( "Not set" );
+				setForeground( Color.red ) ;
+			}
+		}
+	}
+
+	//GUI members
 	private JButton donorStackButton;
 	private JButton acceptorStackButton;
-
 	private static final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
+
+	//Data members
+	private ImagePlus donorExcitationStack;
+	private ImagePlus acceptorExcitationStack;
 
 	public FrettyFRETSamplesPanel()
 	{
@@ -298,11 +338,14 @@ class FrettyFRETSamplesPanel extends JPanel
 		p1.add( wildcardPanel );
 		add(p1, c);
 
-		donorStackButton = new JButton("Indicate donor excitation stack");
-		acceptorStackButton = new JButton("Indicate acceptor excitation stack" );
+		donorStackButton = new StackSelectorButton("Indicate donor excitation stack");
+		acceptorStackButton = new StackSelectorButton("Indicate acceptor excitation stack" );
+
 		add( donorStackButton, c );
 		add( acceptorStackButton, c );
 	}
+
+	
 
 	public void enableCrossExcitationCorrection( boolean yesno )
 	{
