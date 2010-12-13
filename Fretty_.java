@@ -56,23 +56,25 @@ class FrettyTopPanel extends JPanel
 		add( wavelengthsPerSample );
 
 		add( new JLabel( "Donor quantum yield" ) );
-		final JSpinner donorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0, 1, 0.001 ) );
+		JSpinner donorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0, 1, 0.001 ) );
 		donorQuantumYield.addChangeListener(
 			new ChangeListener(){
 				public void stateChanged( ChangeEvent e ) {
-					processor.setDonorQuantumYield( (Float) donorQuantumYield.getValue() );
+					final JSpinner source = (JSpinner) e.getSource();
+					processor.setDonorQuantumYield( ((Double)source.getModel().getValue()).floatValue() );
 				}
 			});
 		add( donorQuantumYield );
 
 		add( new JLabel( "Acceptor quantum yield" ) );
-		final JSpinner acceptorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0,1, 0.001 ) );
-		//acceptorQuantumYield.addChangeListener(
-		//	new ChangeListener(){
-		//		public void stateChanged( ChangeEvent e ){
-		//			processor.setAcceptorQuantumYield( (Float) acceptorQuantumYield.getValue() );
-		//		}
-		//	});
+		JSpinner acceptorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0,1, 0.001 ) );
+		acceptorQuantumYield.addChangeListener(
+			new ChangeListener(){
+				public void stateChanged( ChangeEvent e ){
+					final JSpinner source = (JSpinner) e.getSource();
+					processor.setAcceptorQuantumYield( ((Double) source.getValue()).floatValue() );
+				}
+			});
 		add( acceptorQuantumYield );
 	}
 }
