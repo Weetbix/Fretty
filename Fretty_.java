@@ -46,7 +46,8 @@ class FrettyTopPanel extends JPanel
 		add( crossCorrection );
 
 		add( new JLabel("Wavelengths Per Sample  " ) );
-		final JSpinner wavelengthsPerSample = new JSpinner( new SpinnerNumberModel( 25, 1, 9999, 1 ) );
+		final JSpinner wavelengthsPerSample = new JSpinner( 
+			new SpinnerNumberModel( processor.getWavelengthsPerSample(), 1, 9999, 1 ) );
 		wavelengthsPerSample.addChangeListener( 
 			new ChangeListener(){
 				public void stateChanged( ChangeEvent e ) {
@@ -56,7 +57,8 @@ class FrettyTopPanel extends JPanel
 		add( wavelengthsPerSample );
 
 		add( new JLabel( "Donor quantum yield" ) );
-		JSpinner donorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0, 1, 0.001 ) );
+		JSpinner donorQuantumYield = new JSpinner( 
+			new SpinnerNumberModel( (double) processor.getDonorQuantumYield(), 0, 1, 0.001 ) );
 		donorQuantumYield.addChangeListener(
 			new ChangeListener(){
 				public void stateChanged( ChangeEvent e ) {
@@ -67,7 +69,8 @@ class FrettyTopPanel extends JPanel
 		add( donorQuantumYield );
 
 		add( new JLabel( "Acceptor quantum yield" ) );
-		JSpinner acceptorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0,1, 0.001 ) );
+		JSpinner acceptorQuantumYield = new JSpinner( 
+			new SpinnerNumberModel( (double) processor.getAcceptorQuantumYield(), 0,1, 0.001 ) );
 		acceptorQuantumYield.addChangeListener(
 			new ChangeListener(){
 				public void stateChanged( ChangeEvent e ){
@@ -361,12 +364,6 @@ class FrettyFRETSamplesPanel extends JPanel
 		{
 			super( title ); 
 			setStack( null );
-
-			addActionListener( new ActionListener(){
-				public void actionPerformed( ActionEvent e ){
-					setStack( WindowManager.getCurrentImage() );
-				}
-			});
 		}
 
 		public void setStack( ImagePlus newstack) 
@@ -388,8 +385,8 @@ class FrettyFRETSamplesPanel extends JPanel
 	}
 
 	//GUI members
-	private JButton donorStackButton;
-	private JButton acceptorStackButton;
+	private StackSelectorButton donorStackButton;
+	private StackSelectorButton acceptorStackButton;
 	private static final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
 
@@ -397,7 +394,7 @@ class FrettyFRETSamplesPanel extends JPanel
 	private ImagePlus donorExcitationStack;
 	private ImagePlus acceptorExcitationStack;
 
-	public FrettyFRETSamplesPanel()
+	public FrettyFRETSamplesPanel( final FRETProcessor processor )
 	{
 		setBorder( new TitledBorder("FRET Samples") );
 ;
@@ -420,7 +417,22 @@ class FrettyFRETSamplesPanel extends JPanel
 		add(p1, c);
 
 		donorStackButton = new StackSelectorButton("Indicate donor excitation stack");
+		donorStackButton.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent e ){
+				ImagePlus newstack = WindowManager.getCurrentImage();
+				donorStackButton.setStack( newstack );
+				processor.setDonorExcitationStack( newstack );
+			}
+		});
+
 		acceptorStackButton = new StackSelectorButton("Indicate acceptor excitation stack" );
+		acceptorStackButton.addActionListener( new ActionListener(){
+			public void actionPerformed( ActionEvent e ){
+				ImagePlus newstack = WindowManager.getCurrentImage();
+				acceptorStackButton.setStack( newstack );
+				processor.setAcceptorExcitationStack( newstack );
+			}
+		});
 
 		add( donorStackButton, c );
 		add( acceptorStackButton, c );
@@ -464,7 +476,7 @@ public class Fretty_ extends PlugInFrame
 		topPanel = new FrettyTopPanel(this, processor);
 		commonPanel = new FrettyCommonPanel();
 		referenceSpectraPanel = new FrettyReferenceSpectraPanel( processor );
-		FRETSamplesPanel = new FrettyFRETSamplesPanel();
+		FRETSamplesPanel = new FrettyFRETSamplesPanel( processor );
 
 		add( topPanel ); 
 		add( commonPanel );

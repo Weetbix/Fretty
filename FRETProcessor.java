@@ -145,7 +145,7 @@ public class FRETProcessor
 			//Check that the SAA spectrum has the correct number of samples 
 			if( SAA.getSize() != wavelengthsPerSample ) 
 				throw new IllegalArgumentException( "The SAA spectrum doesn't have the correct number of samples (has " +
-									SAA.getSize() + " needs " + wavelengthsPerSample );
+									SAA.getSize() + " needs " + wavelengthsPerSample + ")" );
 
 			//Check the acceptor excitation stack is okay/legit
 			if( acceptorExcitationStack == null ) 
@@ -167,11 +167,11 @@ public class FRETProcessor
 		//Check that the SDD and SAD spectrums have the correct number of samples
 		if( SDD.getSize() != wavelengthsPerSample )
 			throw new IllegalArgumentException( "The SDD spectrum doesn't have the correct number of samples (has " + 
-								SDD.getSize() + " needs " + wavelengthsPerSample );
+								SDD.getSize() + " needs " + wavelengthsPerSample + ")" );
 		
 		if( SAD.getSize() != wavelengthsPerSample )
 			throw new IllegalArgumentException( "The SAD spectrum doesn't have the correct number of samples (has " + 
-								SAD.getSize() + " needs " + wavelengthsPerSample );	
+								SAD.getSize() + " needs " + wavelengthsPerSample + ")" );	
 
 		//Check the stacks are set correctly. 
 		if( donorExcitationStack == null ) 
