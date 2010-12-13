@@ -122,7 +122,7 @@ class FrettyReferenceSpectraPanel extends JPanel
 	FrettySpectraSelector SAD;
 	FrettySpectraSelector SAA;
 
-	public FrettyReferenceSpectraPanel()
+	public FrettyReferenceSpectraPanel( final FRETProcessor processor )
 	{
 		setBorder( new TitledBorder("Reference Spectra") );
 		
@@ -130,6 +130,26 @@ class FrettyReferenceSpectraPanel extends JPanel
 		SDD =  new FrettySpectraSelector( "SDD" );
 		SAD = 	new FrettySpectraSelector( "SAD" );
 		SAA = 	new FrettySpectraSelector( "SAA" );
+
+		//set all the callbacks, so the processor knows when a spectrum has changed...
+		SDD.setListener( new FrettySpectraSelector.SpectrumChangedEvent(){
+			public void onChange(){
+				processor.setSDDSpectrum( SDD.getSpectrum() );
+			}
+		});
+
+		SAD.setListener( new FrettySpectraSelector.SpectrumChangedEvent(){
+			public void onChange(){
+				processor.setSADSpectrum( SAD.getSpectrum() );
+			}
+		});
+
+		SAA.setListener( new FrettySpectraSelector.SpectrumChangedEvent(){
+			public void onChange(){
+				processor.setSAASpectrum( SAA.getSpectrum() );
+			}
+		});
+
 
 		add( SDD );
 		add( SAD );
@@ -145,6 +165,11 @@ class FrettyReferenceSpectraPanel extends JPanel
 
 class FrettySpectraSelector extends JPanel
 {
+	public interface SpectrumChangedEvent 
+	{
+		public void onChange();
+	}
+
 	JLabel label;
 	JButton load = new JButton( "Load" );
 	JButton create = new JButton( "Create" );
@@ -154,6 +179,7 @@ class FrettySpectraSelector extends JPanel
 
 	//The actual spectrum object associated with this GUI panel
 	Spectrum spectrum;
+	SpectrumChangedEvent listener;
 
 	public FrettySpectraSelector( String spectrumName )
 	{	
@@ -256,6 +282,13 @@ class FrettySpectraSelector extends JPanel
 		add( save );
 		add( view );
 		add( clear );
+
+		setSpectrum( null );
+	}
+
+	public void setListener( SpectrumChangedEvent newListener ) 
+	{
+		listener = newListener;
 	}
 
 	public void setEnabled( boolean b ) 
@@ -284,6 +317,10 @@ class FrettySpectraSelector extends JPanel
 	public void setSpectrum( Spectrum spec )
 	{
 		spectrum = spec;
+		
+		//notify the callback if there is one...
+		if( listener != null ) listener.onChange();
+
 		if( spectrum == null )
 		{
 			label.setForeground( Color.red );
@@ -304,6 +341,11 @@ class FrettySpectraSelector extends JPanel
 			view.setEnabled( true );
 			clear.setEnabled( true );
 		}
+	}
+
+	public Spectrum getSpectrum()
+	{
+		return spectrum;
 	}
 }
 
@@ -421,7 +463,7 @@ public class Fretty_ extends PlugInFrame
 
 		topPanel = new FrettyTopPanel(this, processor);
 		commonPanel = new FrettyCommonPanel();
-		referenceSpectraPanel = new FrettyReferenceSpectraPanel();
+		referenceSpectraPanel = new FrettyReferenceSpectraPanel( processor );
 		FRETSamplesPanel = new FrettyFRETSamplesPanel();
 
 		add( topPanel ); 
