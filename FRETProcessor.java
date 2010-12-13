@@ -136,13 +136,49 @@ public class FRETProcessor
 	{
 		if( crossExcitationCorrection )
 		{
+			if( SAA == null )
+				throw new NullPointerException( "No SAA spectrum set" );
+
+			//Check that the SAA spectrum has the correct number of samples 
+			if( SAA.getSize() != wavelengthsPerSample ) 
+				throw new IllegalArgumentException( "The SAA spectrum doesn't have the correct number of samples (has " +
+									SAA.getSize() + " needs " + wavelengthsPerSample );
+
+			//Check the acceptor excitation stack is okay/legit
 			if( acceptorExcitationStack == null ) 
 				throw new NullPointerException( "No acceptor excitation stack indicated" );
 
-			if( SAA == null )
-				throw new NullPointerException( "No SAA spectrum loaded" );
+			//acceptor stack must be the same size as the donor stack
+			if( donorExcitationStack != null && acceptorExcitationStack.getStackSize() != donorExcitationStack.getStackSize() )
+				throw new IllegalArgumentException( "The acceptor stack and donor stack must be of the same size! donor " + 
+									"stack has " + donorExcitationStack.getStackSize() + " slices, and acceptor " + 
+									" stack has " + acceptorExcitationStack.getStackSize() );
 		}
 
+		//Check that the SDD and SAD spectrums exist
+		if( SDD == null ) 
+			throw new NullPointerException( "No SDD spectrum set" );
+		if( SAD == null ) 
+			throw new NullPointerException( "No SAD spectrum set" );
+
+		//Check that the SDD and SAD spectrums have the correct number of samples
+		if( SDD.getSize() != wavelengthsPerSample )
+			throw new IllegalArgumentException( "The SDD spectrum doesn't have the correct number of samples (has " + 
+								SDD.getSize() + " needs " + wavelengthsPerSample );
 		
+		if( SAD.getSize() != wavelengthsPerSample )
+			throw new IllegalArgumentException( "The SAD spectrum doesn't have the correct number of samples (has " + 
+								SAD.getSize() + " needs " + wavelengthsPerSample );	
+
+		//Check the stacks are set correctly. 
+		if( donorExcitationStack == null ) 
+			throw new NullPointerException( "The donor excitation stack has not been set." );
+		
+		//Check that the donor stack is a multiple of the wavelengthspersample ( so we can accept mega stacks );
+		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
+			throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
+								"slices, it must be a multiple of the wavelengths per sample." );
+
+
 	}
 }
