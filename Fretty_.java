@@ -359,11 +359,23 @@ class FrettyFRETSamplesPanel extends JPanel
 	class StackSelectorButton extends JButton
 	{
 		private ImagePlus stack;
+		private Color currentColour = Color.red;
 
 		StackSelectorButton( String title ) 
 		{
 			super( title ); 
 			setStack( null );
+		}
+
+		@Override
+		public void setEnabled( boolean enable )
+		{
+			if( enable == false )
+				setForeground( Color.gray );
+			else 
+				setForeground( currentColour );
+
+			super.setEnabled( enable );
 		}
 
 		public void setStack( ImagePlus newstack) 
@@ -374,12 +386,14 @@ class FrettyFRETSamplesPanel extends JPanel
 			if( stack != null )
 			{
 				setToolTipText( "Set to: " + stack.getTitle() );
-				setForeground( Color.green );
+				currentColour = Color.green;
+				setForeground( currentColour  );
 			}
 			else
 			{
 				setToolTipText( "Not set" );
-				setForeground( Color.red ) ;
+				currentColour = Color.red;
+				setForeground( currentColour  );
 			}
 		}
 	}
