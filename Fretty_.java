@@ -11,19 +11,22 @@ import javax.swing.border.*;
 
 import javax.*;
 import javax.swing.plaf.*;
+import javax.swing.event.*;
 
 //The panel at the top of the gui screen...
 class FrettyTopPanel extends JPanel
 {
 	Fretty_ mainGUI;
+	FRETProcessor processor;
 
 	//Padding
 	private static final Insets insets = new Insets( 10,10,10,10 );
 	public Insets getInsets() { return insets; }
 
-	public FrettyTopPanel( Fretty_ frettyGUI )
+	public FrettyTopPanel( Fretty_ frettyGUI, FRETProcessor fretp )
 	{
 		mainGUI = frettyGUI;
+		processor = fretp;
 
 		//CROSS EXCITATION check box
 		setLayout( new GridLayout( 4, 2 ) );
@@ -34,10 +37,8 @@ class FrettyTopPanel extends JPanel
 			new ActionListener(){
 				public void actionPerformed( ActionEvent actionEvent ){
 					AbstractButton b = (AbstractButton) actionEvent.getSource();
-					if( b.getModel().isSelected() )
-						mainGUI.enableCrossExcitationCorrection(true);
-					else
-						mainGUI.enableCrossExcitationCorrection( false );
+					mainGUI.enableCrossExcitationCorrection(b.getModel().isSelected());
+					processor.enableCrossExcitationCorrection( b.getModel().isSelected() );
 				}
 			});
 				
@@ -45,18 +46,33 @@ class FrettyTopPanel extends JPanel
 		add( crossCorrection );
 
 		add( new JLabel("Wavelengths Per Sample  " ) );
-		JSpinner wavelengthsPerSample = new JSpinner(
-					new SpinnerNumberModel( 25, 1, 9999, 1 ) );
+		final JSpinner wavelengthsPerSample = new JSpinner( new SpinnerNumberModel( 25, 1, 9999, 1 ) );
+		wavelengthsPerSample.addChangeListener( 
+			new ChangeListener(){
+				public void stateChanged( ChangeEvent e ) {
+					processor.setWavelengthsPerSample( (Integer) wavelengthsPerSample.getValue() );
+				}
+			});
 		add( wavelengthsPerSample );
 
 		add( new JLabel( "Donor quantum yield" ) );
-		JSpinner donorQuantumYield = new JSpinner( 
-					new SpinnerNumberModel( (double)0, 0, 1, 0.001 ) );
+		final JSpinner donorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0, 1, 0.001 ) );
+		donorQuantumYield.addChangeListener(
+			new ChangeListener(){
+				public void stateChanged( ChangeEvent e ) {
+					processor.setDonorQuantumYield( (Float) donorQuantumYield.getValue() );
+				}
+			});
 		add( donorQuantumYield );
 
 		add( new JLabel( "Acceptor quantum yield" ) );
-		JSpinner acceptorQuantumYield = new JSpinner( 
-					new SpinnerNumberModel( (double)0, 0,1, 0.001 ) );
+		final JSpinner acceptorQuantumYield = new JSpinner( new SpinnerNumberModel( (double)0.5, 0,1, 0.001 ) );
+		//acceptorQuantumYield.addChangeListener(
+		//	new ChangeListener(){
+		//		public void stateChanged( ChangeEvent e ){
+		//			processor.setAcceptorQuantumYield( (Float) acceptorQuantumYield.getValue() );
+		//		}
+		//	});
 		add( acceptorQuantumYield );
 	}
 }
@@ -245,9 +261,19 @@ class FrettySpectraSelector extends JPanel
 		label.setEnabled( b );
 		load.setEnabled( b );
 		create.setEnabled( b );
-		save.setEnabled( b );
-		view.setEnabled( b );
-		clear.setEnabled( b );
+
+		if( spectrum != null && b == true )
+		{
+			save.setEnabled( b );
+			view.setEnabled( b );
+			clear.setEnabled( b );
+		} 
+		else if( b == false ) 
+		{
+			save.setEnabled( b );
+			view.setEnabled( b );
+			clear.setEnabled( b );
+		}
 	}
 
 	//Sets the spectrum associated with this GUI panel.
@@ -257,13 +283,24 @@ class FrettySpectraSelector extends JPanel
 	{
 		spectrum = spec;
 		if( spectrum == null )
+		{
 			label.setForeground( Color.red );
+
+			//dont show these buttons without a spectrum
+			save.setEnabled( false );
+			view.setEnabled( false );
+			clear.setEnabled( false );
+		}
 		else
 		{
 			//Empty spectrums do us no good...
 			if( spectrum.getSize() <= 0 ) setSpectrum( null );
 
 			label.setForeground( Color.green );
+
+			save.setEnabled( true );
+			view.setEnabled( true );
+			clear.setEnabled( true );
 		}
 	}
 }
@@ -360,6 +397,9 @@ public class Fretty_ extends PlugInFrame
 	FrettyReferenceSpectraPanel		referenceSpectraPanel;
 	FrettyFRETSamplesPanel 		FRETSamplesPanel;
 
+	//The main class that does all the FRET work when you hit go
+	FRETProcessor processor = new FRETProcessor();
+
 	public Fretty_ () 
 	{
 		super("Fretty");
@@ -377,7 +417,7 @@ public class Fretty_ extends PlugInFrame
 		}
 		catch(Exception e ){};
 
-		topPanel = new FrettyTopPanel(this);
+		topPanel = new FrettyTopPanel(this, processor);
 		commonPanel = new FrettyCommonPanel();
 		referenceSpectraPanel = new FrettyReferenceSpectraPanel();
 		FRETSamplesPanel = new FrettyFRETSamplesPanel();
@@ -388,7 +428,25 @@ public class Fretty_ extends PlugInFrame
 		add( FRETSamplesPanel );
 
 		JPanel p = new JPanel();
-			p.add( new JButton( "Create FRET image" ) );
+			//The GO button!
+			JButton b = new JButton( "Create FRET image" );
+			b.addActionListener( new ActionListener(){
+				public void actionPerformed( ActionEvent e ) 
+				{
+					try
+					{
+						processor.createFRETImage();
+					}
+					catch( Exception ex ) 
+					{
+						JOptionPane.showMessageDialog( 	null, 
+											ex.getMessage(), 
+											"Error",
+											JOptionPane.ERROR_MESSAGE );
+					}
+				}
+			});
+			p.add( b );
 			p.add( new JButton( "ROI FRET Value" ) );
 
 		add( p );

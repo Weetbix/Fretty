@@ -100,11 +100,6 @@ public class FRETProcessor
 		return SAA;
 	}
 
-	public void CreateFRETImage()
-	{
-		
-	}
-
 	void setDonorExcitationStack( ImagePlus stack )
 	{
 		donorExcitationStack = stack;
@@ -129,6 +124,14 @@ public class FRETProcessor
 
 
 
+
+
+
+
+	public void createFRETImage()
+	{
+		imageErrorChecks();
+	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
 	//approrpiate exceptions if something is wrong, with the message set.
