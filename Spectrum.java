@@ -98,4 +98,13 @@ public class Spectrum
 		}
 	}
 
+	public float[] asArray()
+	{
+		float[] a = new float[ values.size() ];
+		for( int i = 0; i < values.size(); i++ )
+			a[i] = values.get( i );
+
+		return a;
+	}
+
 }

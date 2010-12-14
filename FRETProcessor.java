@@ -1,3 +1,4 @@
+import Jama.*;
 import ij.*;
 
 ///////////////////////////////////////////////////////////////////////////
@@ -135,6 +136,61 @@ public class FRETProcessor
 
 		SDDn.normaliseTo( donorQuantumYield );
 		SADn.normaliseTo( acceptorQuantumYield );
+			
+		//combine the reference spectra into an array
+		float[][] refs = new float[2][];
+		refs [0] = SDDn.asArray();
+		refs [1] = SADn.asArray();
+
+		//double[] coefficients = findCoefficients( refs, 
+	}
+
+	// Adapted from Ben Corry's original code
+	// R - Reference spectra
+	// S - Combined/FRET spectra
+	// All spectra must be of the same length
+	// Returns an array of the coefficients 
+	public double[] findCoefficients( float[][] R, float[] S )
+	{
+		//We need to reorganise all spectra to fit into some linear equations so
+		//we can use the matrix library to solve for the coefficeints...
+		//Eg. Ax = b, solving for x 
+
+		final int numSpectra= R.length;		//Number of spectra we are trying to fit for
+		final int numWavelengths = R[0].length;	//The number of wavelength samples per spectrum
+
+		double[][] A = new double[numSpectra][numSpectra];
+		double[] b = new double[numSpectra];
+
+		for( int i = 0; i < numSpectra; i++ )
+		{
+			for( int j = 0; j < numSpectra; j++ )
+			{
+				A[i][j] = 0;
+			}
+			b[i] = 0;
+		}
+
+		//Fill the arrays with our linear equations 
+		for( int i = 0; i < numWavelengths ; i++ )
+		{
+			for( int k = 0; k < numSpectra; k++ )
+			{
+				for( int j = 0; j < numSpectra; j++ )
+				{
+					A[k][j] = A[k][j] + R[j][i] * R[k][i];
+				}
+				b[k] = b[k] + S[i] * R[k][i];
+			}
+		}
+
+		//Use jama to solve for the final coefficients matrix
+		Matrix Alpha = new Matrix( A, 3, 3 );
+		Matrix beta = new Matrix( b, 3 );
+
+		Matrix x = Alpha.solve( beta );
+
+		return x.getColumnPackedCopy();
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
