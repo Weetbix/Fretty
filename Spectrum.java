@@ -91,12 +91,6 @@ public class Spectrum
 		{
 			values.set(i, (values.get(i) / total) * quantumYield );
 		}
-		
-		total = 0;
-		for( float val : values )
-			total += val;
-
-		IJ.showMessage( "new total", Float.toString( total ) );
 	}
 
 }
