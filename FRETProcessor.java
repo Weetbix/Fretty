@@ -142,7 +142,13 @@ public class FRETProcessor
 		refs [0] = SDDn.asArray();
 		refs [1] = SADn.asArray();
 
-		//double[] coefficients = findCoefficients( refs, 
+		double[] coefficients = findCoefficients( refs, SAA.asArray() );
+
+		IJ.showMessage( "dfdf", "1: " + coefficients[0] + "  -- 2:" + coefficients[2] );
+
+		double e = coefficients[1] / ( coefficients[0] + coefficients[1] ); 
+		
+		IJ.showMessage( "E val", ":" + e );
 	}
 
 	// Adapted from Ben Corry's original code
@@ -185,12 +191,15 @@ public class FRETProcessor
 		}
 
 		//Use jama to solve for the final coefficients matrix
-		Matrix Alpha = new Matrix( A, 3, 3 );
-		Matrix beta = new Matrix( b, 3 );
+		Matrix Alpha = new Matrix( A, numSpectra, numSpectra );
+		Matrix beta = new Matrix( b, numSpectra );
 
 		Matrix x = Alpha.solve( beta );
 
+		Matrix y = Alpha.inverse();
 		return x.getColumnPackedCopy();
+
+		return null;
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
