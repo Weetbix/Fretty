@@ -144,7 +144,7 @@ public class FRETProcessor
 
 		double[] coefficients = findCoefficients( refs, SAA.asArray() );
 
-		IJ.showMessage( "dfdf", "1: " + coefficients[0] + "  -- 2:" + coefficients[2] );
+		IJ.showMessage( "dfdf", "1: " + coefficients[0] + "  -- 2:" + coefficients[1] );
 
 		double e = coefficients[1] / ( coefficients[0] + coefficients[1] ); 
 		
@@ -199,7 +199,7 @@ public class FRETProcessor
 		Matrix y = Alpha.inverse();
 		return x.getColumnPackedCopy();
 
-		return null;
+		//return null;
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
