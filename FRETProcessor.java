@@ -125,8 +125,13 @@ public class FRETProcessor
 
 
 
+	///////////////////////////////////////////////////////////////////////////
+	// Begin methods that actually do important stuff
+	////////////////////////////////////////////////////////////////////////////
 
-	public void createFRETImage()
+	//Returns an E value using the current settings of this object, and given a
+	//single FRET spectrum.
+	public double findEValue( Spectrum S )
 	{
 		imageErrorChecks();
 
@@ -142,13 +147,16 @@ public class FRETProcessor
 		refs [0] = SDDn.asArray();
 		refs [1] = SADn.asArray();
 
-		double[] coefficients = findCoefficients( refs, SAA.asArray() );
+		double[] coefficients = findCoefficients( refs, S.asArray() );
 
-		IJ.showMessage( "dfdf", "1: " + coefficients[0] + "  -- 2:" + coefficients[1] );
+		return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
+	}
 
-		double e = coefficients[1] / ( coefficients[0] + coefficients[1] ); 
-		
-		IJ.showMessage( "E val", ":" + e );
+	public void createFRETImage()
+	{
+		imageErrorChecks();
+
+		//Doesnt do much now...
 	}
 
 	// Adapted from Ben Corry's original code
@@ -196,10 +204,7 @@ public class FRETProcessor
 
 		Matrix x = Alpha.solve( beta );
 
-		Matrix y = Alpha.inverse();
 		return x.getColumnPackedCopy();
-
-		//return null;
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
