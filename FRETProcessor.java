@@ -7,7 +7,7 @@ import ij.*;
 public class FRETProcessor 
 {
 	boolean crossExcitationCorrection = true;
-	int wavelengthsPerSample = 5;
+	int wavelengthsPerSample = 25;
 	float donorQuantumYield = 0;
 	float acceptorQuantumYield = 0;
 
@@ -128,6 +128,13 @@ public class FRETProcessor
 	public void createFRETImage()
 	{
 		imageErrorChecks();
+
+		//Normalise the required spectra to their quantum yield
+		Spectrum SDDn = new Spectrum( SDD );
+		Spectrum SADn = new Spectrum( SAD );
+
+		SDDn.normaliseTo( donorQuantumYield );
+		SADn.normaliseTo( acceptorQuantumYield );
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 

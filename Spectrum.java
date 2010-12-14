@@ -14,6 +14,11 @@ public class Spectrum
 
 	}
 
+	public Spectrum( Spectrum old )
+	{
+		values = new ArrayList<Float>(old.values);
+	}
+
 	//Returns the number of samples in the spectrum
 	public int getSize()
 	{
