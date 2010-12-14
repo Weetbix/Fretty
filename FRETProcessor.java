@@ -125,9 +125,6 @@ public class FRETProcessor
 
 
 
-
-
-
 	public void createFRETImage()
 	{
 		imageErrorChecks();

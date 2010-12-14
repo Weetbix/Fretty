@@ -79,4 +79,24 @@ public class Spectrum
 		window.show( "Spectrum" );
 	}
 
+	public void normaliseTo( float quantumYield )
+	{
+		float total = 0;
+		for( float val : values )
+		{
+			total += val;
+		}
+		
+		for( int i = 0; i < values.size(); i++ )
+		{
+			values.set(i, (values.get(i) / total) * quantumYield );
+		}
+		
+		total = 0;
+		for( float val : values )
+			total += val;
+
+		IJ.showMessage( "new total", Float.toString( total ) );
+	}
+
 }

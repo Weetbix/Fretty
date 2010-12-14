@@ -370,6 +370,9 @@ class FrettyFRETSamplesPanel extends JPanel
 		@Override
 		public void setEnabled( boolean enable )
 		{
+			//Need to override this otherwise the disabled button has a green/red label even
+			//if it is disabled :(
+
 			if( enable == false )
 				setForeground( Color.gray );
 			else 
