@@ -533,6 +533,20 @@ public class Fretty_ extends PlugInFrame
 						Spectrum[] spectra = SpectrumGenerator.arrayFromROI();
 					
 						if( spectra == null || spectra.length <= 0 ) return;
+						
+						//Get the results ready so we can have something to fill the table with...
+						double[] evals = new double[spectra.length];
+						for( int i = 0; i < spectra.length; i++ )
+						{
+							evals[i] = processor.findEValue( spectra[i] );
+						}
+				
+						double average = 0;
+						for( double evalue : evals )
+						{
+							average += evalue;
+						}
+						average = average / spectra.length;
 
 						//Get a results table ready to fill
 						ResultsTable window = new ResultsTable();
@@ -542,8 +556,10 @@ public class Fretty_ extends PlugInFrame
 						{
 							window.incrementCounter();
 							window.addValue( "ROI", roi_num + 1 );
-							window.addValue( "E", processor.findEValue( spectra[roi_num] ) );
+							window.addValue( "E", evals[roi_num] );
+							window.addValue( "Mean", average );
 						}
+
 						window.show( "E values for all FRET ROIs" );
 					}
 					catch( Exception ex )

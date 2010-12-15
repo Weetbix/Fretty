@@ -207,9 +207,34 @@ public class FRETProcessor
 		return x.getColumnPackedCopy();
 	}
 
+	//Checks that all params are setup correctly to call findEValue. 
+	//Checks are a little different to createImage
+	private void findEValueChecks()
+	{
+		basicErrorChecks();
+	
+		//Check that the donor stack is EXACTLY the size of the wavelengthspersample
+		//This is because you need to select ROIs and these wont match for mega stacks!
+		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
+			throw new IllegalArgumentException( "The donor excitation stack must be the same size" + 
+								" as the wavelengths per sample." );
+	}
+
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
 	//approrpiate exceptions if something is wrong, with the message set.
 	private void imageErrorChecks()
+	{
+		basicErrorChecks();
+		
+		//Check that the donor stack is a multiple of the wavelengthspersample ( so we can accept mega stacks );
+		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
+			throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
+								"slices, it must be a multiple of the wavelengths per sample." );
+	}
+
+	//checks that all basic params are setup correctly to call either createIMage or getEvalue
+	//basically this function contains shared error checks. 
+	private void basicErrorChecks()
 	{
 		if( crossExcitationCorrection )
 		{
@@ -251,11 +276,5 @@ public class FRETProcessor
 		if( donorExcitationStack == null ) 
 			throw new NullPointerException( "The donor excitation stack has not been set." );
 		
-		//Check that the donor stack is a multiple of the wavelengthspersample ( so we can accept mega stacks );
-		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
-			throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
-								"slices, it must be a multiple of the wavelengths per sample." );
-
-
 	}
 }
