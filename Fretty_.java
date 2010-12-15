@@ -2,16 +2,18 @@ import ij.*;
 import ij.io.*;
 import ij.process.*;
 import ij.gui.*;
+import ij.measure.*;
+import ij.plugin.frame.*;
+
 import java.awt.*;
 import java.awt.event.*;
-import ij.plugin.frame.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-
-import javax.*;
 import javax.swing.plaf.*;
 import javax.swing.event.*;
+import javax.*;
+
 
 //The panel at the top of the gui screen...
 class FrettyTopPanel extends JPanel
@@ -520,7 +522,40 @@ public class Fretty_ extends PlugInFrame
 				}
 			});
 			p.add( b );
-			p.add( new JButton( "ROI FRET Value" ) );
+
+			b = new JButton( "ROI FRET Values" );
+			b.addActionListener( new ActionListener(){
+				public void actionPerformed( ActionEvent e )
+				{
+					try
+					{
+						//get a list of FRET spectra from the current stack and ROIs
+						Spectrum[] spectra = SpectrumGenerator.arrayFromROI();
+					
+						if( spectra == null || spectra.length <= 0 ) return;
+
+						//Get a results table ready to fill
+						ResultsTable window = new ResultsTable();
+						window.reset();
+
+						for( int roi_num = 0; roi_num < spectra.length; roi_num++ )
+						{
+							window.incrementCounter();
+							window.addValue( "ROI", roi_num + 1 );
+							window.addValue( "E", processor.findEValue( spectra[roi_num] ) );
+						}
+						window.show( "E values for all FRET ROIs" );
+					}
+					catch( Exception ex )
+					{
+						JOptionPane.showMessageDialog( 	null, 
+											ex.getMessage(), 
+											"Error",
+											JOptionPane.ERROR_MESSAGE );
+					}
+				}
+			});
+			p.add( b );
 
 		add( p );
 
