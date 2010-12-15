@@ -551,6 +551,7 @@ public class Fretty_ extends PlugInFrame
 						//Get a results table ready to fill
 						ResultsTable window = new ResultsTable();
 						window.reset();
+						window.setPrecision( 10 );
 
 						for( int roi_num = 0; roi_num < spectra.length; roi_num++ )
 						{
