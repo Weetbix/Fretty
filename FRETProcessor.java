@@ -1,5 +1,6 @@
 import Jama.*;
 import ij.*;
+import ij.process.*;
 
 ///////////////////////////////////////////////////////////////////////////
 /// The class that does the actual work, to keep 
@@ -8,7 +9,7 @@ import ij.*;
 public class FRETProcessor 
 {
 	boolean crossExcitationCorrection = true;
-	int wavelengthsPerSample = 25;
+	int wavelengthsPerSample = 24;
 	float donorQuantumYield = 0;
 	float acceptorQuantumYield = 0;
 
@@ -156,7 +157,56 @@ public class FRETProcessor
 	{
 		imageErrorChecks();
 
-		//Doesnt do much now...
+		//Loop through each pixel in the image stack. For each pixel make a float array
+		//which will be our spectrum. For each of these spectrums pass them findCoefficients
+		//For each e value returned, we can create a new image.
+
+		final int numSpectra = donorExcitationStack.getWidth() * donorExcitationStack.getHeight();
+		//float[][] spectra = new float[ wavelengthsPerSample ][ numSpectra ];
+
+		//Normalise the required spectra to their quantum yield
+		Spectrum SDDn = new Spectrum( SDD );
+		Spectrum SADn = new Spectrum( SAD );
+
+		SDDn.normaliseTo( donorQuantumYield );
+		SADn.normaliseTo( acceptorQuantumYield );
+
+		//combine the reference spectra into an array
+		float[][] refs = new float[2][];
+		refs [0] = SDDn.asArray();
+		refs [1] = SADn.asArray();
+
+		ImagePlus newImage = IJ.createImage( "E value image",
+							  "32-bit", 
+							  donorExcitationStack.getWidth(),
+							  donorExcitationStack.getHeight(), 1 );
+		ImageProcessor image = newImage.getProcessor();
+
+		float[] spectrum = new float[ wavelengthsPerSample ];
+		for( int specNum = 0; specNum  < numSpectra; specNum  ++ )
+		{
+			final int x = specNum % donorExcitationStack.getWidth();
+			final int y = specNum / donorExcitationStack.getHeight();
+
+			for( int slice= 0; slice< wavelengthsPerSample; slice++ )
+			{
+				//Get the image processor for the current stack
+				donorExcitationStack.setSliceWithoutUpdate( slice);
+
+				ImageProcessor ip = donorExcitationStack.getProcessor();
+				spectrum[ slice ] = ip.getPixelValue( x, y );
+			}
+
+			//now that we have a spectrum for this pixel, put it through the coefficients solver...
+			double[] coefficients = findCoefficients( refs, spectrum );
+
+			float e = (float) (coefficients[1] / ( coefficients[0] + coefficients[1] ));
+
+			//set the pixel...
+			image.putPixelValue( x, y, e );
+		} 
+
+		newImage.show();
 	}
 
 	// Adapted from Ben Corry's original code

@@ -540,7 +540,7 @@ public class Fretty_ extends PlugInFrame
 						{
 							evals[i] = processor.findEValue( spectra[i] );
 						}
-				
+
 						double average = 0;
 						for( double evalue : evals )
 						{
