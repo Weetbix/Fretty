@@ -27,9 +27,9 @@ public class SpectrumGenerator
 
 		RoiManager roi = RoiManager.getInstance();
 
-		Spectrum newSpectrum = new Spectrum();
-
 		ImagePlus imp = IJ.getImage();
+
+		Spectrum newSpectrum = new Spectrum();
 		
 		ImageStatistics stats;
 		Roi[] selections = roi.getRoisAsArray();
@@ -59,14 +59,12 @@ public class SpectrumGenerator
 	//Returns an array of spectrum objects based on the ROIs. length of the array will
 	//be equal to the total number of ROIs in the ROI manager. This method does not
 	//average or weigh between ROIs like in generateFromROI
-	public static Spectrum[] arrayFromROI()
+	public static Spectrum[] arrayFromROI( ImagePlus imp )
 	{
 		//Requires the ROI manager open...
 		if( !ROIManagerCheck() ) return null;
 
 		RoiManager roi = RoiManager.getInstance();
-
-		ImagePlus imp = IJ.getImage();
 		
 		ImageStatistics stats;
 		Roi[] selections = roi.getRoisAsArray();

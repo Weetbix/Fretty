@@ -457,8 +457,6 @@ class FrettyFRETSamplesPanel extends JPanel
 		add( acceptorStackButton, c );
 	}
 
-	
-
 	public void enableCrossExcitationCorrection( boolean yesno )
 	{
 		acceptorStackButton.setEnabled( yesno );
@@ -529,8 +527,19 @@ public class Fretty_ extends PlugInFrame
 				{
 					try
 					{
+						ImagePlus donorStack = processor.getDonorExcitationStack();
+				
+						if( donorStack == null )
+						{
+							JOptionPane.showMessageDialog( 	null, 
+									"You need to select a donor stack", 
+									"Error",
+									JOptionPane.ERROR_MESSAGE );
+							return;
+						}
+
 						//get a list of FRET spectra from the current stack and ROIs
-						Spectrum[] spectra = SpectrumGenerator.arrayFromROI();
+						Spectrum[] spectra = SpectrumGenerator.arrayFromROI( donorStack );
 					
 						if( spectra == null || spectra.length <= 0 ) return;
 						
