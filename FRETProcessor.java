@@ -166,7 +166,6 @@ public class FRETProcessor
 		//For each e value returned, we can create a new image.
 
 		final int numSpectra = donorExcitationStack.getWidth() * donorExcitationStack.getHeight();
-		//float[][] spectra = new float[ wavelengthsPerSample ][ numSpectra ];
 
 		//Normalise the required spectra to their quantum yield
 		Spectrum SDDn = new Spectrum( SDD );
