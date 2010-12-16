@@ -193,11 +193,13 @@ public class FRETProcessor
 		}
 
 		float[] spectrum = new float[ wavelengthsPerSample ];
+		//for each 'pixel' or spectrum....
 		for( int specNum = 0; specNum  < numSpectra; specNum  ++ )
 		{
 			final int x = specNum % donorExcitationStack.getWidth();
 			final int y = specNum / donorExcitationStack.getHeight();
-
+			
+			//for each 'slice' in the stack, which is basically for each wavelength sample
 			for( int slice= 0; slice< wavelengthsPerSample; slice++ )
 			{
 				spectrum[ slice ] = processors[slice].getPixelValue( x, y );
