@@ -153,6 +153,10 @@ public class FRETProcessor
 		return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
 	}
 
+	//Creates an image of E values for each pixel in a FRET image.
+	//Potential optimisations:
+	//	- save references to pixel arrays instead of using getPixelValue/setPixelValue
+	//		- will require require the image to be in 1 specific format, eg 32-bit
 	public void createFRETImage()
 	{
 		imageErrorChecks();
