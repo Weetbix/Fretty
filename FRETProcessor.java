@@ -182,6 +182,13 @@ public class FRETProcessor
 							  donorExcitationStack.getHeight(), 1 );
 		ImageProcessor image = newImage.getProcessor();
 
+		//Cache the image processors for each image in the stack
+		ImageProcessor[] processors = new ImageProcessor[ donorExcitationStack.getStackSize() ];
+		for( int i = 0; i < donorExcitationStack.getStackSize(); i++ )
+		{
+			processors[i] = donorExcitationStack.getStack().getProcessor(i + 1);
+		}
+
 		float[] spectrum = new float[ wavelengthsPerSample ];
 		for( int specNum = 0; specNum  < numSpectra; specNum  ++ )
 		{
@@ -190,11 +197,7 @@ public class FRETProcessor
 
 			for( int slice= 0; slice< wavelengthsPerSample; slice++ )
 			{
-				//Get the image processor for the current stack
-				donorExcitationStack.setSliceWithoutUpdate( slice);
-
-				ImageProcessor ip = donorExcitationStack.getProcessor();
-				spectrum[ slice ] = ip.getPixelValue( x, y );
+				spectrum[ slice ] = processors[slice].getPixelValue( x, y );
 			}
 
 			//now that we have a spectrum for this pixel, put it through the coefficients solver...

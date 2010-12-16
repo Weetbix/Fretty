@@ -508,7 +508,15 @@ public class Fretty_ extends PlugInFrame
 				{
 					try
 					{
+						long start = System.currentTimeMillis();
+	
 						processor.createFRETImage();
+
+						long elapsedMillis = System.currentTimeMillis() - start;
+			
+						float seconds = elapsedMillis / 1000F;
+
+						IJ.showMessage( "Milliseconds", "=" + elapsedMillis );
 					}
 					catch( Exception ex ) 
 					{
