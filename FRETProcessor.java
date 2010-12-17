@@ -183,6 +183,7 @@ public class FRETProcessor
 							  "32-bit", 
 							  donorExcitationStack.getWidth(),
 							  donorExcitationStack.getHeight(), 1 );
+		newImage.hide();
 		ImageProcessor image = newImage.getProcessor();
 
 		//Cache the image processors for each image in the stack
