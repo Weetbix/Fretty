@@ -445,25 +445,8 @@ class FrettyFRETSamplesPanel extends JPanel
 
 	public FrettyFRETSamplesPanel( final FRETProcessor processor )
 	{
-		setBorder( new TitledBorder("FRET Samples") );
-;
-		setLayout( new GridBagLayout() );
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.gridwidth = GridBagConstraints.REMAINDER;
-
-		JPanel p1 = new JPanel();
-		p1.setOpaque( false );
-		p1.add( new JButton("Build Mega Stack") );
-			JPanel wildcardPanel = new JPanel();
-			wildcardPanel.setLayout( new GridLayout(2,1) );
-			wildcardPanel.setBorder( new TitledBorder("Stack names (wildcard)") );
-		
-			wildcardPanel.add( new JTextField(15) );
-			wildcardPanel.add( new JCheckBox("Include megastacks") );
-		p1.add( wildcardPanel );
-		add(p1, c);
+		///// FRET STACKS TAB
+		JTabbedPane tabPanel = new JTabbedPane();
 
 		donorStackButton = new StackSelectorButton("Indicate donor excitation stack");
 		donorStackButton.addActionListener( new ActionListener(){
@@ -483,8 +466,33 @@ class FrettyFRETSamplesPanel extends JPanel
 			}
 		});
 
-		add( donorStackButton, c );
-		add( acceptorStackButton, c );
+		JPanel buttonPanel = new JPanel();
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.insets = new Insets( 5, 5, 5, 5 );
+		buttonPanel.setLayout( new GridBagLayout() );
+
+		buttonPanel.add( donorStackButton, c );
+		buttonPanel.add( acceptorStackButton, c);
+
+		tabPanel.addTab( "FRET Samples", buttonPanel );
+
+		///// BATCHING TAB
+		JPanel p1 = new JPanel();
+		p1.add( new JButton("Build Mega Stack") );
+			JPanel wildcardPanel = new JPanel();
+			wildcardPanel.setLayout( new GridLayout(2,1) );
+			wildcardPanel.setBorder( new TitledBorder("Stack names (wildcard)") );
+		
+			wildcardPanel.add( new JTextField(15) );
+			wildcardPanel.add( new JCheckBox("Include megastacks") );
+		p1.add( wildcardPanel );
+
+		tabPanel.addTab( "Batching Stacks", p1 );
+
+		add( tabPanel );
 	}
 
 	public void enableCrossExcitationCorrection( boolean yesno )
