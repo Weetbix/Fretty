@@ -367,6 +367,36 @@ class FrettyFRETSamplesPanel extends JPanel
 		{
 			super( title ); 
 			setStack( null );
+
+			//Add a 'clear' button to clear the stack selection
+			final JPopupMenu menu = new JPopupMenu();
+			JMenuItem clear = new JMenuItem( "Clear" );
+			clear.addActionListener( new ActionListener(){
+				public void actionPerformed( ActionEvent e )
+				{
+					setStack( null );	
+				}
+			});
+			menu.add( clear );
+
+			//Add a 'show stack' button to bring the stack to the front
+			JMenuItem showStack = new JMenuItem( "Show stack" );
+			showStack.addActionListener( new ActionListener(){
+				public void actionPerformed( ActionEvent e )
+				{
+					if( stack != null )
+						stack.getWindow().show();
+				}
+			});
+			menu.add( showStack );
+
+			addMouseListener( new MouseAdapter(){
+				public void mouseReleased( MouseEvent e )
+				{
+					if( e.isPopupTrigger() )
+						menu.show( e.getComponent(), e.getX(), e.getY() );
+				}
+			});
 		}
 
 		@Override
