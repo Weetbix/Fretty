@@ -89,7 +89,7 @@ class FrettyCommonPanel extends JPanel
 	public FrettyCommonPanel()
 	{
 		setBorder( new TitledBorder("Common Tools") );
-		
+
 		//Opens the ROI manager
 		JButton roiMan = new JButton( "Open ROI Manager" );
 		roiMan.addActionListener( 

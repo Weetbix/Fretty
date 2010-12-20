@@ -26,10 +26,10 @@ public class SpectrumGenerator
 		if( !ROIManagerCheck() ) return null;
 
 		RoiManager roi = RoiManager.getInstance();
-
 		ImagePlus imp = IJ.getImage();
-
+		int originalSlice = imp.getSlice();
 		Spectrum newSpectrum = new Spectrum();
+
 		
 		ImageStatistics stats;
 		Roi[] selections = roi.getRoisAsArray();
@@ -53,6 +53,7 @@ public class SpectrumGenerator
 			newSpectrum.addValue( (float) total );
 		}
 
+		imp.setSliceWithoutUpdate( originalSlice );
 		return newSpectrum;
 	}
 
@@ -72,6 +73,10 @@ public class SpectrumGenerator
 		for( int i = 0; i < spectra.length; i++ )
 			spectra[i] = new Spectrum();
 
+		//Save the original slice, because we are using set slice without update.. we need to set
+		//the slice back to the original afterwards so that the image position doesnt change...
+		int originalSlice = imp.getSlice();
+
 		for( int i = 1; i <= imp.getStackSize(); i++ )
 		{
 			imp.setSliceWithoutUpdate( i );
@@ -86,6 +91,8 @@ public class SpectrumGenerator
 				spectra[ roi_num ].addValue( (float) stats.mean );
 			}
 		}
+
+		imp.setSliceWithoutUpdate( originalSlice );
 
 		return spectra;
 	}
