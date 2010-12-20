@@ -374,7 +374,7 @@ class FrettyFRETSamplesPanel extends JPanel
 			clear.addActionListener( new ActionListener(){
 				public void actionPerformed( ActionEvent e )
 				{
-					setStack( null );	
+					setStack( null );
 				}
 			});
 			menu.add( clear );
@@ -431,6 +431,11 @@ class FrettyFRETSamplesPanel extends JPanel
 				setForeground( currentColour  );
 			}
 		}
+
+		public ImagePlus getStack()
+		{
+			return stack;
+		}
 	}
 
 	//GUI members
@@ -439,12 +444,12 @@ class FrettyFRETSamplesPanel extends JPanel
 	private static final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
 
-	//Data members
-	private ImagePlus donorExcitationStack;
-	private ImagePlus acceptorExcitationStack;
+	FRETProcessor processor;
 
-	public FrettyFRETSamplesPanel( final FRETProcessor processor )
+	public FrettyFRETSamplesPanel( final FRETProcessor the_processor )
 	{
+		processor = the_processor; 
+
 		///// FRET STACKS TAB
 		JTabbedPane tabPanel = new JTabbedPane();
 
@@ -493,6 +498,13 @@ class FrettyFRETSamplesPanel extends JPanel
 		tabPanel.addTab( "Batching Stacks", p1 );
 
 		add( tabPanel );
+	}
+
+	//update the links between the processors stacks and the ones the buttons know about
+	public void updateProcessor()
+	{
+		processor.setDonorExcitationStack( donorStackButton.getStack() );
+		processor.setAcceptorExcitationStack( acceptorStackButton.getStack() );
 	}
 
 	public void enableCrossExcitationCorrection( boolean yesno )
@@ -548,6 +560,7 @@ public class Fretty_ extends PlugInFrame
 					{
 						long start = System.currentTimeMillis();
 	
+						FRETSamplesPanel.updateProcessor();
 						processor.createFRETImage();
 
 						long elapsedMillis = System.currentTimeMillis() - start;
@@ -573,6 +586,7 @@ public class Fretty_ extends PlugInFrame
 				{
 					try
 					{
+						FRETSamplesPanel.updateProcessor();
 						ImagePlus donorStack = processor.getDonorExcitationStack();
 				
 						if( donorStack == null )

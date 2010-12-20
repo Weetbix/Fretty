@@ -10,8 +10,8 @@ public class FRETProcessor
 {
 	boolean crossExcitationCorrection = true;
 	int wavelengthsPerSample = 24;
-	float donorQuantumYield = 0;
-	float acceptorQuantumYield = 0;
+	float donorQuantumYield = 0.5f;
+	float acceptorQuantumYield = 0.5f;
 
 	//Reference Spectra
 	Spectrum SDD;
