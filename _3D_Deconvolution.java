@@ -72,7 +72,9 @@ class FrettyCommonPanel extends JPanel
 {
 	public FrettyCommonPanel()
 	{
-		setBorder( new TitledBorder("Common Tools") );
+		JTabbedPane tabPanel = new JTabbedPane();
+
+		JPanel commonPanel = new JPanel();
 
 		//Opens the ROI manager
 		JButton roiMan = new JButton( "Open ROI Manager" );
@@ -89,7 +91,7 @@ class FrettyCommonPanel extends JPanel
 					}
 				}
 			} );
-		add( roiMan );
+		commonPanel.add( roiMan );
 
 		//Does background reduction on the current stack
 		JButton bgReduction = new JButton( "Background Reduction" );
@@ -101,7 +103,11 @@ class FrettyCommonPanel extends JPanel
 			}
 		);
 		
-		add( bgReduction );
+		commonPanel.add( bgReduction );
+
+		tabPanel.addTab( "Common Tools", commonPanel );
+		tabPanel.addTab( "Batching", new BatchingPanel() );
+		add( tabPanel );
 	}
 }
 
