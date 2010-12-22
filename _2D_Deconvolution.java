@@ -18,14 +18,14 @@ import javax.*;
 //The panel at the top of the gui screen...
 class FrettyTopPanel extends JPanel
 {
-	Fretty_ mainGUI;
+	_2D_Deconvolution mainGUI;
 	FRETProcessor processor;
 
 	//Padding
 	private static final Insets insets = new Insets( 10,10,10,10 );
 	public Insets getInsets() { return insets; }
 
-	public FrettyTopPanel( Fretty_ frettyGUI, FRETProcessor fretp )
+	public FrettyTopPanel( _2D_Deconvolution frettyGUI, FRETProcessor fretp )
 	{
 		mainGUI = frettyGUI;
 		processor = fretp;
@@ -513,7 +513,7 @@ class FrettyFRETSamplesPanel extends JPanel
 	}
 }
 
-public class Fretty_ extends PlugInFrame 
+public class _2D_Deconvolution extends PlugInFrame 
 {
 	FrettyTopPanel 			topPanel;
 	FrettyCommonPanel 			commonPanel;
@@ -523,9 +523,9 @@ public class Fretty_ extends PlugInFrame
 	//The main class that does all the FRET work when you hit go
 	FRETProcessor processor = new FRETProcessor();
 
-	public Fretty_ () 
+	public _2D_Deconvolution () 
 	{
-		super("Fretty");
+		super("2D Deconvolution");
 
 		setLayout( new BoxLayout(this, BoxLayout.Y_AXIS)) ;
 
