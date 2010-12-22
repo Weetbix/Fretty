@@ -398,10 +398,8 @@ class FrettyFRETSamplesPanel extends JPanel
 
 	public FrettyFRETSamplesPanel( final FRETProcessor the_processor )
 	{
+		setBorder( new TitledBorder("FRET Sample") );
 		processor = the_processor; 
-
-		///// FRET STACKS TAB
-		JTabbedPane tabPanel = new JTabbedPane();
 
 		donorStackButton = new StackSelectorButton("Indicate donor excitation stack");
 		donorStackButton.addActionListener( new ActionListener(){
@@ -413,21 +411,18 @@ class FrettyFRETSamplesPanel extends JPanel
 		});
 
 		JPanel buttonPanel = new JPanel();
+		
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.WEST;
 		c.gridwidth = GridBagConstraints.REMAINDER;
-		c.insets = new Insets( 5, 5, 5, 5 );
+		c.insets = new Insets( 8, 5, 5, 5 );
 		buttonPanel.setLayout( new GridBagLayout() );
+		buttonPanel.setOpaque( false );
 
 		buttonPanel.add( donorStackButton, c );
 
-		tabPanel.addTab( "FRET Samples", buttonPanel );
-
-		///// BATCHING TAB
-		tabPanel.addTab( "Batching Stacks", new BatchingPanel()  );
-
-		add( tabPanel );
+		add( buttonPanel );
 	}
 
 	//update the links between the processors stacks and the ones the buttons know about
