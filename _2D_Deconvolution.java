@@ -484,18 +484,7 @@ class FrettyFRETSamplesPanel extends JPanel
 
 		tabPanel.addTab( "FRET Samples", buttonPanel );
 
-		///// BATCHING TAB
-		JPanel p1 = new JPanel();
-		p1.add( new JButton("Build Mega Stack") );
-			JPanel wildcardPanel = new JPanel();
-			wildcardPanel.setLayout( new GridLayout(2,1) );
-			wildcardPanel.setBorder( new TitledBorder("Stack names (wildcard)") );
-		
-			wildcardPanel.add( new JTextField(15) );
-			wildcardPanel.add( new JCheckBox("Include megastacks") );
-		p1.add( wildcardPanel );
-
-		tabPanel.addTab( "Batching Stacks", p1 );
+		tabPanel.addTab( "Batching Stacks", new BatchingPanel() );
 
 		add( tabPanel );
 	}
