@@ -14,18 +14,17 @@ import javax.swing.plaf.*;
 import javax.swing.event.*;
 import javax.*;
 
-
 //The panel at the top of the gui screen...
-class FrettyTopPanel extends JPanel
+class FrettyTopPanel3D extends JPanel
 {
 	_3D_Deconvolution mainGUI;
 	FRETProcessor processor;
 
 	//Padding
-	private static final Insets insets = new Insets( 10,10,10,10 );
+	private final Insets insets = new Insets( 10,10,10,10 );
 	public Insets getInsets() { return insets; }
 
-	public FrettyTopPanel( _3D_Deconvolution frettyGUI, FRETProcessor fretp )
+	public FrettyTopPanel3D( _3D_Deconvolution frettyGUI, FRETProcessor fretp )
 	{
 		mainGUI = frettyGUI;
 		processor = fretp;				
@@ -68,9 +67,9 @@ class FrettyTopPanel extends JPanel
 	}
 }
 
-class FrettyCommonPanel extends JPanel 
+class FrettyCommonPanel3D extends JPanel 
 {
-	public FrettyCommonPanel()
+	public FrettyCommonPanel3D()
 	{
 		JTabbedPane tabPanel = new JTabbedPane();
 
@@ -111,12 +110,12 @@ class FrettyCommonPanel extends JPanel
 	}
 }
 
-class FrettyReferenceSpectraPanel extends JPanel
+class FrettyReferenceSpectraPanel3D extends JPanel
 {
 	FrettySpectraSelector SD;
 	FrettySpectraSelector SA;
 
-	public FrettyReferenceSpectraPanel( final FRETProcessor processor )
+	public FrettyReferenceSpectraPanel3D( final FRETProcessor processor )
 	{
 		setBorder( new TitledBorder("Reference Spectra") );
 		
@@ -144,7 +143,7 @@ class FrettyReferenceSpectraPanel extends JPanel
 	}
 }
 
-class FrettySpectraSelector extends JPanel
+class FrettySpectraSelector3D extends JPanel
 {
 	public interface SpectrumChangedEvent 
 	{
@@ -162,7 +161,7 @@ class FrettySpectraSelector extends JPanel
 	Spectrum spectrum;
 	SpectrumChangedEvent listener;
 
-	public FrettySpectraSelector( String spectrumName )
+	public FrettySpectraSelector3D( String spectrumName )
 	{	
 		label = new JLabel( spectrumName );
 		label.setForeground( Color.red ); 
@@ -310,8 +309,7 @@ class FrettySpectraSelector extends JPanel
 	}
 }
 
-
-class FrettyFRETSamplesPanel extends JPanel
+class FrettyFRETSamplesPanel3D extends JPanel
 {
 	//The two stack selector buttons use this class
 	class StackSelectorButton extends JButton
@@ -397,12 +395,12 @@ class FrettyFRETSamplesPanel extends JPanel
 	//GUI members
 	private StackSelectorButton donorStackButton;
 	private StackSelectorButton acceptorStackButton;
-	private static final Insets insets = new Insets( 5,5,5,5 );
+	private final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
 
 	FRETProcessor processor;
 
-	public FrettyFRETSamplesPanel( final FRETProcessor the_processor )
+	public FrettyFRETSamplesPanel3D( final FRETProcessor the_processor )
 	{
 		setBorder( new TitledBorder("FRET Sample") );
 		processor = the_processor; 
@@ -440,10 +438,10 @@ class FrettyFRETSamplesPanel extends JPanel
 
 public class _3D_Deconvolution extends PlugInFrame 
 {
-	FrettyTopPanel 			topPanel;
-	FrettyCommonPanel 			commonPanel;
-	FrettyReferenceSpectraPanel		referenceSpectraPanel;
-	FrettyFRETSamplesPanel 		FRETSamplesPanel;
+	FrettyTopPanel3D 				topPanel;
+	FrettyCommonPanel3D 			commonPanel;
+	FrettyReferenceSpectraPanel3D		referenceSpectraPanel;
+	FrettyFRETSamplesPanel3D 			FRETSamplesPanel;
 
 	//The main class that does all the FRET work when you hit go
 	FRETProcessor processor = new FRETProcessor();
@@ -465,10 +463,10 @@ public class _3D_Deconvolution extends PlugInFrame
 		}
 		catch(Exception e ){};
 
-		topPanel = new FrettyTopPanel(this, processor);
-		commonPanel = new FrettyCommonPanel();
-		referenceSpectraPanel = new FrettyReferenceSpectraPanel( processor );
-		FRETSamplesPanel = new FrettyFRETSamplesPanel( processor );
+		topPanel = new FrettyTopPanel3D(this, processor);
+		commonPanel = new FrettyCommonPanel3D();
+		referenceSpectraPanel = new FrettyReferenceSpectraPanel3D( processor );
+		FRETSamplesPanel = new FrettyFRETSamplesPanel3D( processor );
 
 		add( topPanel ); 
 		add( commonPanel );
