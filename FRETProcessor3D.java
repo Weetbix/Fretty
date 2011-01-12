@@ -6,7 +6,7 @@ import ij.process.*;
 /// The class that does the actual work, to keep 
 /// the processing out of the gui classes. 
 //////////////////////////////////////////////////////////////////////////
-public class FRETProcessor 
+public class FRETProcessor3D 
 {
 	boolean crossExcitationCorrection = true;
 	int wavelengthsPerSample = 24;
@@ -21,7 +21,7 @@ public class FRETProcessor
 	ImagePlus donorExcitationStack;
 	ImagePlus acceptorExcitationStack;
 
-	public FRETProcessor()
+	public FRETProcessor3D()
 	{
 		
 	}

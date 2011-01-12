@@ -19,13 +19,13 @@ import javax.*;
 class FrettyTopPanel extends JPanel
 {
 	_2D_Deconvolution mainGUI;
-	FRETProcessor processor;
+	FRETProcessor2D processor;
 
 	//Padding
 	private static final Insets insets = new Insets( 10,10,10,10 );
 	public Insets getInsets() { return insets; }
 
-	public FrettyTopPanel( _2D_Deconvolution frettyGUI, FRETProcessor fretp )
+	public FrettyTopPanel( _2D_Deconvolution frettyGUI, FRETProcessor2D fretp )
 	{
 		mainGUI = frettyGUI;
 		processor = fretp;
@@ -127,7 +127,7 @@ class FrettyReferenceSpectraPanel extends JPanel
 	FrettySpectraSelector SAD;
 	FrettySpectraSelector SAA;
 
-	public FrettyReferenceSpectraPanel( final FRETProcessor processor )
+	public FrettyReferenceSpectraPanel( final FRETProcessor2D processor )
 	{
 		setBorder( new TitledBorder("Reference Spectra") );
 		
@@ -444,9 +444,9 @@ class FrettyFRETSamplesPanel extends JPanel
 	private static final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
 
-	FRETProcessor processor;
+	FRETProcessor2D processor;
 
-	public FrettyFRETSamplesPanel( final FRETProcessor the_processor )
+	public FrettyFRETSamplesPanel( final FRETProcessor2D the_processor )
 	{
 		processor = the_processor; 
 
@@ -510,7 +510,7 @@ public class _2D_Deconvolution extends PlugInFrame
 	FrettyFRETSamplesPanel 		FRETSamplesPanel;
 
 	//The main class that does all the FRET work when you hit go
-	FRETProcessor processor = new FRETProcessor();
+	FRETProcessor2D processor = new FRETProcessor2D();
 
 	public _2D_Deconvolution () 
 	{

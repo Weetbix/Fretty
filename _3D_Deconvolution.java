@@ -18,13 +18,13 @@ import javax.*;
 class FrettyTopPanel3D extends JPanel
 {
 	_3D_Deconvolution mainGUI;
-	FRETProcessor processor;
+	FRETProcessor3D processor;
 
 	//Padding
 	private final Insets insets = new Insets( 10,10,10,10 );
 	public Insets getInsets() { return insets; }
 
-	public FrettyTopPanel3D( _3D_Deconvolution frettyGUI, FRETProcessor fretp )
+	public FrettyTopPanel3D( _3D_Deconvolution frettyGUI, FRETProcessor3D fretp )
 	{
 		mainGUI = frettyGUI;
 		processor = fretp;				
@@ -115,7 +115,7 @@ class FrettyReferenceSpectraPanel3D extends JPanel
 	FrettySpectraSelector SD;
 	FrettySpectraSelector SA;
 
-	public FrettyReferenceSpectraPanel3D( final FRETProcessor processor )
+	public FrettyReferenceSpectraPanel3D( final FRETProcessor3D processor )
 	{
 		setBorder( new TitledBorder("Reference Spectra") );
 		
@@ -398,9 +398,9 @@ class FrettyFRETSamplesPanel3D extends JPanel
 	private final Insets insets = new Insets( 5,5,5,5 );
 	public Insets getInsets() { return insets; }
 
-	FRETProcessor processor;
+	FRETProcessor3D processor;
 
-	public FrettyFRETSamplesPanel3D( final FRETProcessor the_processor )
+	public FrettyFRETSamplesPanel3D( final FRETProcessor3D the_processor )
 	{
 		setBorder( new TitledBorder("FRET Sample") );
 		processor = the_processor; 
@@ -444,7 +444,7 @@ public class _3D_Deconvolution extends PlugInFrame
 	FrettyFRETSamplesPanel3D 			FRETSamplesPanel;
 
 	//The main class that does all the FRET work when you hit go
-	FRETProcessor processor = new FRETProcessor();
+	FRETProcessor3D processor = new FRETProcessor3D();
 
 	public _3D_Deconvolution () 
 	{
