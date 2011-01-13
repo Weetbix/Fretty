@@ -274,7 +274,7 @@ public class FRETProcessor2D
 	
 		//Check that the donor stack is EXACTLY the size of the wavelengthspersample
 		//This is because you need to select ROIs and these wont match for mega stacks!
-		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
+		if( donorExcitationStack.getStackSize() != wavelengthsPerSample  )
 			throw new IllegalArgumentException( "The donor excitation stack must be the same size" + 
 								" as the wavelengths per sample." );
 	}
