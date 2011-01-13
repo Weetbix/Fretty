@@ -158,7 +158,7 @@ class FrettySpectraSelector3D extends JPanel
 	JButton clear = new JButton( "Clear" );
 
 	//The actual spectrum object associated with this GUI panel
-	Spectrum spectrum;
+	Spectrum3D spectrum;
 	SpectrumChangedEvent listener;
 
 	public FrettySpectraSelector3D( String spectrumName )
@@ -166,6 +166,7 @@ class FrettySpectraSelector3D extends JPanel
 		label = new JLabel( spectrumName );
 		label.setForeground( Color.red ); 
 
+		/*
 		//CREATE BUTTON
 		create.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent actionEvent ){
@@ -175,13 +176,14 @@ class FrettySpectraSelector3D extends JPanel
 				{
 					//We dont want to accidentally erase the spectrum they have already
 					//added if they click create and there is an error (eg ROI man isnt open)
-					Spectrum s = SpectrumGenerator.generateFromROI();
+					//Spectrum s = SpectrumGenerator.generateFromROI();
 					if( s != null ) 
 						setSpectrum( s );
 				}
 			}
-		});
+		});*/
 
+		/*
 		//LOAD BUTTON
 		load.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent e ){
@@ -193,7 +195,7 @@ class FrettySpectraSelector3D extends JPanel
 				//If they didnt open a file, bail. 
 				if( od.getFileName() == null ) return;
 
-				Spectrum loaded_spec = new Spectrum();
+				//Spectrum loaded_spec = new Spectrum();
 				//Try to load the file and report any error messages
 				try
 				{
@@ -206,7 +208,7 @@ class FrettySpectraSelector3D extends JPanel
 					setSpectrum( null );
 				}
 			}
-		});
+		});*/
 
 		//SAVE BUTTON
 		save.addActionListener( new ActionListener(){
@@ -224,7 +226,7 @@ class FrettySpectraSelector3D extends JPanel
 					//Try to save the file and report any error messages
 					try
 					{
-						spectrum.saveToFile( sd.getDirectory() + sd.getFileName() );
+						//spectrum.saveToFile( sd.getDirectory() + sd.getFileName() );
 					}
 					catch( Exception ex )
 					{
@@ -274,7 +276,7 @@ class FrettySpectraSelector3D extends JPanel
 	//Sets the spectrum associated with this GUI panel.
 	//If the spectrum is set to null then the text will go red, if the spectrum is okay
 	//to use the text will go green.
-	public void setSpectrum( Spectrum spec )
+	public void setSpectrum( Spectrum3D spec )
 	{
 		spectrum = spec;
 		
@@ -293,7 +295,7 @@ class FrettySpectraSelector3D extends JPanel
 		else
 		{
 			//Empty spectrums do us no good...
-			if( spectrum.getSize() <= 0 ) setSpectrum( null );
+			if( spectrum.getExcitationWavelengths() <= 0 || spectrum.getEmissionWavelengths() <= 0  ) setSpectrum( null );
 
 			label.setForeground( Color.green );
 
@@ -303,7 +305,7 @@ class FrettySpectraSelector3D extends JPanel
 		}
 	}
 
-	public Spectrum getSpectrum()
+	public Spectrum3D getSpectrum()
 	{
 		return spectrum;
 	}

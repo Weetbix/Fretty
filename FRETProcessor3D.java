@@ -5,21 +5,19 @@ import ij.process.*;
 ///////////////////////////////////////////////////////////////////////////
 /// The class that does the actual work, to keep 
 /// the processing out of the gui classes. 
+/// This class is the 3D FRET processor
 //////////////////////////////////////////////////////////////////////////
 public class FRETProcessor3D 
 {
-	boolean crossExcitationCorrection = true;
-	int wavelengthsPerSample = 24;
+	int excitationWavelengths = 4;
 	float donorQuantumYield = 0.5f;
 	float acceptorQuantumYield = 0.5f;
 
 	//Reference Spectra
-	Spectrum SDD;
-	Spectrum SAD;
-	Spectrum SAA;
+	Spectrum SD;
+	Spectrum SA;
 
 	ImagePlus donorExcitationStack;
-	ImagePlus acceptorExcitationStack;
 
 	public FRETProcessor3D()
 	{
@@ -30,22 +28,16 @@ public class FRETProcessor3D
 	//Boring setters and getters
 	/////////////////////////////////////////////////
 
-	void enableCrossExcitationCorrection( boolean yesno ) 
+	boolean setExcitationWavelengths( int wls )
 	{
-		crossExcitationCorrection = yesno;
-	}
-
-	//Must be > 0 (durrrh). Returns false if value not accepted
-	boolean setWavelengthsPerSample( int wlps )
-	{
-		if( wlps <= 0 ) return false;
-		wavelengthsPerSample = wlps;
+		if( wls <= 0 ) return false;
+		excitationWavelengths = wls;
 		return true;
 	}
 
-	int getWavelengthsPerSample()
+	int getExcitationWavelengths()
 	{
-		return wavelengthsPerSample;
+		return excitationWavelengths;
 	}
 
 	boolean setDonorQuantumYield( float val ) 
@@ -72,34 +64,24 @@ public class FRETProcessor3D
 		return acceptorQuantumYield;
 	}
 
-	void setSDDSpectrum( Spectrum s )
+	void setSDSpectrum( Spectrum s )
 	{
-		SDD = s;
+		SD = s;
 	}
 	
-	Spectrum getSDDSpectrum()
+	Spectrum getSDSpectrum()
 	{
-		return SDD;
+		return SD;
 	}
 
-	void setSADSpectrum( Spectrum s ) 
+	void setSASpectrum( Spectrum s ) 
 	{
-		SAD = s;
+		SA = s;
 	}
 
-	Spectrum getSADSpectrum()
+	Spectrum getSASpectrum()
 	{
-		return SAD;
-	}
-
-	void setSAASpectrum( Spectrum s ) 
-	{
-		SAA = s;
-	}
-
-	Spectrum getSAASpectrum()
-	{
-		return SAA;
+		return SA;
 	}
 
 	void setDonorExcitationStack( ImagePlus stack )
@@ -112,20 +94,6 @@ public class FRETProcessor3D
 		return donorExcitationStack;
 	}
 
-	void setAcceptorExcitationStack( ImagePlus stack )
-	{
-		acceptorExcitationStack = stack;
-	}
-
-	ImagePlus getAcceptorExcitationStack()
-	{
-		return acceptorExcitationStack;
-	}
-
-
-
-
-
 	///////////////////////////////////////////////////////////////////////////
 	// Begin methods that actually do important stuff
 	////////////////////////////////////////////////////////////////////////////
@@ -137,20 +105,22 @@ public class FRETProcessor3D
 		imageErrorChecks();
 
 		//Normalise the required spectra to their quantum yield
-		Spectrum SDDn = new Spectrum( SDD );
-		Spectrum SADn = new Spectrum( SAD );
+		//Spectrum SDDn = new Spectrum( SDD );
+		//Spectrum SADn = new Spectrum( SAD );
 
-		SDDn.normaliseTo( donorQuantumYield );
-		SADn.normaliseTo( acceptorQuantumYield );
+		//SDDn.normaliseTo( donorQuantumYield );
+		//SADn.normaliseTo( acceptorQuantumYield );
 			
 		//combine the reference spectra into an array
-		float[][] refs = new float[2][];
-		refs [0] = SDDn.asArray();
-		refs [1] = SADn.asArray();
+		//float[][] refs = new float[2][];
+		//refs [0] = SDDn.asArray();
+		//refs [1] = SADn.asArray();
 
-		double[] coefficients = findCoefficients( refs, S.asArray() );
+		//double[] coefficients = findCoefficients( refs, S.asArray() );
 
-		return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
+		//return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
+
+		return 0; //TEMPORARRRRRRRYYYYYYYYYYY
 	}
 
 	//Creates an image of E values for each pixel in a FRET image.
@@ -161,6 +131,7 @@ public class FRETProcessor3D
 	{
 		imageErrorChecks();
 
+		/*
 		//Loop through each pixel in the image stack. For each pixel make a float array
 		//which will be our spectrum. For each of these spectrums pass them findCoefficients
 		//For each e value returned, we can create a new image.
@@ -216,6 +187,7 @@ public class FRETProcessor3D
 		} 
 
 		newImage.show();
+		*/
 	}
 
 	// Adapted from Ben Corry's original code
@@ -274,9 +246,9 @@ public class FRETProcessor3D
 	
 		//Check that the donor stack is EXACTLY the size of the wavelengthspersample
 		//This is because you need to select ROIs and these wont match for mega stacks!
-		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
-			throw new IllegalArgumentException( "The donor excitation stack must be the same size" + 
-								" as the wavelengths per sample." );
+		//if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
+		//	throw new IllegalArgumentException( "The donor excitation stack must be the same size" + 
+		//						" as the wavelengths per sample." );
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
@@ -286,54 +258,33 @@ public class FRETProcessor3D
 		basicErrorChecks();
 		
 		//Check that the donor stack is a multiple of the wavelengthspersample ( so we can accept mega stacks );
-		if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
-			throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
-								"slices, it must be a multiple of the wavelengths per sample." );
+		//if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
+		//	throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
+		//						"slices, it must be a multiple of the wavelengths per sample." );
 	}
 
 	//checks that all basic params are setup correctly to call either createIMage or getEvalue
 	//basically this function contains shared error checks. 
 	private void basicErrorChecks()
 	{
-		if( crossExcitationCorrection )
-		{
-			if( SAA == null )
-				throw new NullPointerException( "No SAA spectrum set" );
-
-			//Check that the SAA spectrum has the correct number of samples 
-			if( SAA.getSize() != wavelengthsPerSample ) 
-				throw new IllegalArgumentException( "The SAA spectrum doesn't have the correct number of samples (has " +
-									SAA.getSize() + " needs " + wavelengthsPerSample + ")" );
-
-			//Check the acceptor excitation stack is okay/legit
-			if( acceptorExcitationStack == null ) 
-				throw new NullPointerException( "No acceptor excitation stack indicated" );
-
-			//acceptor stack must be the same size as the donor stack
-			if( donorExcitationStack != null && acceptorExcitationStack.getStackSize() != donorExcitationStack.getStackSize() )
-				throw new IllegalArgumentException( "The acceptor stack and donor stack must be of the same size! donor " + 
-									"stack has " + donorExcitationStack.getStackSize() + " slices, and acceptor " + 
-									" stack has " + acceptorExcitationStack.getStackSize() );
-		}
-
 		//Check that the SDD and SAD spectrums exist
-		if( SDD == null ) 
-			throw new NullPointerException( "No SDD spectrum set" );
-		if( SAD == null ) 
-			throw new NullPointerException( "No SAD spectrum set" );
+		if( SD == null ) 
+			throw new NullPointerException( "No SD spectrum set" );
+		if( SA == null ) 
+			throw new NullPointerException( "No SA spectrum set" );
 
 		//Check that the SDD and SAD spectrums have the correct number of samples
-		if( SDD.getSize() != wavelengthsPerSample )
-			throw new IllegalArgumentException( "The SDD spectrum doesn't have the correct number of samples (has " + 
-								SDD.getSize() + " needs " + wavelengthsPerSample + ")" );
+		//if( SD.getSize() != wavelengthsPerSample )
+		//	throw new IllegalArgumentException( "The SDD spectrum doesn't have the correct number of samples (has " + 
+		//						SDD.getSize() + " needs " + wavelengthsPerSample + ")" );
 		
-		if( SAD.getSize() != wavelengthsPerSample )
-			throw new IllegalArgumentException( "The SAD spectrum doesn't have the correct number of samples (has " + 
-								SAD.getSize() + " needs " + wavelengthsPerSample + ")" );	
+		//if( SAD.getSize() != wavelengthsPerSample )
+		//	throw new IllegalArgumentException( "The SAD spectrum doesn't have the correct number of samples (has " + 
+		//						SAD.getSize() + " needs " + wavelengthsPerSample + ")" );	
 
 		//Check the stacks are set correctly. 
-		if( donorExcitationStack == null ) 
-			throw new NullPointerException( "The donor excitation stack has not been set." );
+		//if( donorExcitationStack == null ) 
+		//	throw new NullPointerException( "The donor excitation stack has not been set." );
 		
 	}
 }
