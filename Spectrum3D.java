@@ -78,14 +78,10 @@ public class Spectrum3D
 
 			for( int y = 0; y < values[0].length; y++ )
 			{	
-				
 				ps.print( values[x][y] );
+				ps.print( '\t' );
 			}
 		}
-
-
-		//for( float val : values )
-		//	ps.println( val );
 
 		ps.close();		
 	}

@@ -70,6 +70,13 @@ public class SpectrumGenerator
 		final int emissionWavelengths =  imp.getStackSize() / excitationWavelengths;
 		Spectrum3D newSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
 
+		//The current stack must be a mulitple of the excitation wavelengths!
+		if( imp.getStackSize() % excitationWavelengths != 0 )
+		{
+			IJ.showMessage( "Error: The current stack is not a multiple of the excitation wavelength!" );
+			return null;
+		}
+
 		//current emission wavelength
 		int emWavelength = 0;
 		//current excitation wavelength
@@ -79,10 +86,10 @@ public class SpectrumGenerator
 		Roi[] selections = roi.getRoisAsArray();
 		for( int i = 1; i <= imp.getStackSize(); i++ )
 		{
-			if( ( i -1 ) % 10 == 0 )
+			if( ( i -1 ) % emissionWavelengths == 0 )
 				exWavelength++;
 
-			emWavelength = (i  -1) % 10;
+			emWavelength = (i  -1) % emissionWavelengths ;
 
 			imp.setSliceWithoutUpdate( i );
 			double total = 0;

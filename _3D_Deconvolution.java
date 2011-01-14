@@ -36,7 +36,7 @@ class FrettyTopPanel3D extends JPanel
 		excitationWavelengths .addChangeListener( 
 			new ChangeListener(){
 				public void stateChanged( ChangeEvent e ) {
-					//processor.setWavelengthsPerSample( (Integer) wavelengthsPerSample.getValue() );
+					processor.setExcitationWavelengths( (Integer) excitationWavelengths.getValue() );
 				}
 			});
 		add( excitationWavelengths );
