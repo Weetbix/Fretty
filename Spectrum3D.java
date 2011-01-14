@@ -1,6 +1,8 @@
 import ij.*;
 import ij.measure.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 //Not synchronised (dont think it matters for now)
 //A 3d verison of the spectrum class
@@ -49,7 +51,6 @@ public class Spectrum3D
 		return values[x][y];
 	}
 
-	/*
 	public void loadFromFile( String fileName ) throws	FileNotFoundException,
 								IOException
 	{
@@ -57,14 +58,33 @@ public class Spectrum3D
 
 		BufferedReader in = new BufferedReader( new FileReader(fileName) );
 		
+		List<String> lines = new ArrayList<String>();
+		List<Float> vals = new ArrayList<Float>();
+
 		String line;
 		while( (line = in.readLine()) != null )
 		{
-			addValue( Float.parseFloat(line) );
+			if( !line.isEmpty() )
+				lines.add( line );
 		}
-			
+
+		String[] string_values;
+		for( String cur_line : lines )
+		{
+			string_values = cur_line.split("\t");
+
+			for( String val : string_values )
+				vals.add( Float.parseFloat(val) );
+		}
+		
+		values = new float[lines.size()][ vals.size() / lines.size() ];
+		
+		for( int x = 0; x < values.length; x++ )
+			for( int y = 0; y < values[0].length; y++ )
+				values[x][y] = vals.get( ( x * values[x].length ) + y );
+
 		in.close();
-	}*/
+	}
 
 	
 	public void saveToFile( String fileName ) throws 	FileNotFoundException,

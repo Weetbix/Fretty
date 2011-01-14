@@ -185,7 +185,6 @@ class FrettySpectraSelector3D extends JPanel
 			}
 		});
 
-		/*
 		//LOAD BUTTON
 		load.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent e ){
@@ -197,7 +196,7 @@ class FrettySpectraSelector3D extends JPanel
 				//If they didnt open a file, bail. 
 				if( od.getFileName() == null ) return;
 
-				//Spectrum loaded_spec = new Spectrum();
+				Spectrum3D loaded_spec = new Spectrum3D(4,4);
 				//Try to load the file and report any error messages
 				try
 				{
@@ -210,7 +209,7 @@ class FrettySpectraSelector3D extends JPanel
 					setSpectrum( null );
 				}
 			}
-		});*/
+		});
 
 		//SAVE BUTTON
 		save.addActionListener( new ActionListener(){
