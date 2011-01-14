@@ -67,13 +67,23 @@ public class SpectrumGenerator
 		ImagePlus imp = IJ.getImage();
 		int originalSlice = imp.getSlice();
 
-		Spectrum3D newSpectrum = new Spectrum3D( excitationWavelengths, imp.getStackSize() / excitationWavelengths );
+		final int emissionWavelengths =  imp.getStackSize() / excitationWavelengths;
+		Spectrum3D newSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
 
-		
+		//current emission wavelength
+		int emWavelength = 0;
+		//current excitation wavelength
+		int exWavelength = 0;
+
 		ImageStatistics stats;
 		Roi[] selections = roi.getRoisAsArray();
 		for( int i = 1; i <= imp.getStackSize(); i++ )
 		{
+			if( i == excitationWavelengths )
+				exWavelength++;
+
+			emWavelength = (i - 1) % 10;
+
 			imp.setSliceWithoutUpdate( i );
 			double total = 0;
 			for( int roi_num = 0; roi_num < roi.getCount(); roi_num++ )
@@ -89,7 +99,7 @@ public class SpectrumGenerator
 
 			//Totals all the averages of all the ROIs. This means that it automatically weights
 			//between ROIs. This is doable because later we normalise the spectrum anyway...
-			newSpectrum.addValue( (float) total );
+			newSpectrum.setValue( exWavelength, emWavelength, (float) total );
 		}
 
 		imp.setSliceWithoutUpdate( originalSlice );
