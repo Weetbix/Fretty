@@ -66,17 +66,46 @@ public class Spectrum3D
 		in.close();
 	}*/
 
-	/*
+	
 	public void saveToFile( String fileName ) throws 	FileNotFoundException,
 								IOException
 	{
 		PrintStream ps = new PrintStream( fileName );
 				
-		for( float val : values )
-			ps.println( val );
+		for( int x = 0; x < values.length; x++ )
+		{
+			ps.println();
+
+			for( int y = 0; y < values[0].length; y++ )
+			{	
+				
+				ps.print( values[x][y] );
+			}
+		}
+
+
+		//for( float val : values )
+		//	ps.println( val );
 
 		ps.close();		
-	}*/
+	}
+
+	/*
+		if( values.length <= 0 || values[0].length <= 0 ) return;
+
+		ResultsTable window = new ResultsTable();
+		window.reset();
+
+		for( int x = 0; x < values.length; x++ )
+		{
+			window.incrementCounter();
+			for( int y = 0; y < values[0].length; y++ )
+			{
+
+				window.addValue( Float.toString(x), values[x][y] );		
+			}
+		}
+*/
 
 	public void displayInResultsWindow()
 	{
@@ -85,12 +114,17 @@ public class Spectrum3D
 		ResultsTable window = new ResultsTable();
 		window.reset();
 
-		for( int x = 0; x < values.length; x++ )
+		setValue( 3, 9, 5 );
+		setValue( 2, 8, 5 );
+		setValue( 1, 7, 5 );
+		setValue( 0, 6, 5 );
+		
+		for( int y = 0; y < values[0].length; y++ )
 		{
-			for( int y = 0; y < values[0].length; y++ )
+			window.incrementCounter();
+			for( int x = 0; x < values.length; x++ )
 			{
-				window.incrementCounter();
-				window.addValue( Float.toString(x), values[x][y] );		
+				window.addValue( Float.toString(x), values[x][y] );
 			}
 		}
 		

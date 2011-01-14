@@ -58,7 +58,7 @@ public class SpectrumGenerator
 	}
 
 	//generates a 3d spectrum object from the current ROIs, averages over all ROIs
-	public Spectrum3D generate3DFromROI( int excitationWavelengths )
+	public static Spectrum3D generate3DFromROI( int excitationWavelengths )
 	{
 		//Requires the ROI manager open...
 		if( !ROIManagerCheck() ) return null;

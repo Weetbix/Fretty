@@ -112,26 +112,26 @@ class FrettyCommonPanel3D extends JPanel
 
 class FrettyReferenceSpectraPanel3D extends JPanel
 {
-	FrettySpectraSelector SD;
-	FrettySpectraSelector SA;
+	FrettySpectraSelector3D SD;
+	FrettySpectraSelector3D SA;
 
 	public FrettyReferenceSpectraPanel3D( final FRETProcessor3D processor )
 	{
 		setBorder( new TitledBorder("Reference Spectra") );
 		
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) ); 
-		SD =  new FrettySpectraSelector( "SD" );
-		SA = 	new FrettySpectraSelector( "SA" );
+		SD =  new FrettySpectraSelector3D( "SD", processor );
+		SA = 	new FrettySpectraSelector3D( "SA", processor );
 
 
 		//set all the callbacks, so the processor knows when a spectrum has changed...
-		SD.setListener( new FrettySpectraSelector.SpectrumChangedEvent(){
+		SD.setListener( new FrettySpectraSelector3D.SpectrumChangedEvent(){
 			public void onChange(){
 				//processor.setSDDSpectrum( SDD.getSpectrum() );
 			}
 		});
 
-		SA.setListener( new FrettySpectraSelector.SpectrumChangedEvent(){
+		SA.setListener( new FrettySpectraSelector3D.SpectrumChangedEvent(){
 			public void onChange(){
 				//processor.setSADSpectrum( SAD.getSpectrum() );
 			}
@@ -160,28 +160,30 @@ class FrettySpectraSelector3D extends JPanel
 	//The actual spectrum object associated with this GUI panel
 	Spectrum3D spectrum;
 	SpectrumChangedEvent listener;
+	FRETProcessor3D processor;
 
-	public FrettySpectraSelector3D( String spectrumName )
+	public FrettySpectraSelector3D( String spectrumName, FRETProcessor3D proc )
 	{	
+		processor = proc;
 		label = new JLabel( spectrumName );
 		label.setForeground( Color.red ); 
 
-		/*
+	
 		//CREATE BUTTON
 		create.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent actionEvent ){
-				if( spectrum == null ) 
-					setSpectrum( SpectrumGenerator.generateFromROI() );
+				if( spectrum == null )
+					setSpectrum( SpectrumGenerator.generate3DFromROI( processor.getExcitationWavelengths() ) );
 				else 
 				{
 					//We dont want to accidentally erase the spectrum they have already
 					//added if they click create and there is an error (eg ROI man isnt open)
-					//Spectrum s = SpectrumGenerator.generateFromROI();
+					Spectrum3D s = SpectrumGenerator.generate3DFromROI( processor.getExcitationWavelengths() );
 					if( s != null ) 
 						setSpectrum( s );
 				}
 			}
-		});*/
+		});
 
 		/*
 		//LOAD BUTTON
@@ -226,7 +228,7 @@ class FrettySpectraSelector3D extends JPanel
 					//Try to save the file and report any error messages
 					try
 					{
-						//spectrum.saveToFile( sd.getDirectory() + sd.getFileName() );
+						spectrum.saveToFile( sd.getDirectory() + sd.getFileName() );
 					}
 					catch( Exception ex )
 					{
@@ -506,6 +508,7 @@ public class _3D_Deconvolution extends PlugInFrame
 			p.add( b );
 
 			b = new JButton( "ROI FRET Values" );
+			/*
 			b.addActionListener( new ActionListener(){
 				public void actionPerformed( ActionEvent e )
 				{
@@ -565,7 +568,7 @@ public class _3D_Deconvolution extends PlugInFrame
 											JOptionPane.ERROR_MESSAGE );
 					}
 				}
-			});
+			});*/
 			p.add( b );
 
 		add( p );
