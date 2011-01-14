@@ -10,9 +10,9 @@ public class Spectrum3D
 {
 	float[][] values;
 	
-	public Spectrum3D( int emissionWavelengths, int excitationWavelengths )
+	public Spectrum3D( int excitationWavelengths, int emissionWavelengths )
 	{
-		values = new float[emissionWavelengths][excitationWavelengths];
+		values = new float[excitationWavelengths][emissionWavelengths];
 		clear();
 	}
 
