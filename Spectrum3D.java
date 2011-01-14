@@ -114,11 +114,6 @@ public class Spectrum3D
 		ResultsTable window = new ResultsTable();
 		window.reset();
 
-		setValue( 3, 9, 5 );
-		setValue( 2, 8, 5 );
-		setValue( 1, 7, 5 );
-		setValue( 0, 6, 5 );
-		
 		for( int y = 0; y < values[0].length; y++ )
 		{
 			window.incrementCounter();

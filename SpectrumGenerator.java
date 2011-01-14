@@ -73,16 +73,16 @@ public class SpectrumGenerator
 		//current emission wavelength
 		int emWavelength = 0;
 		//current excitation wavelength
-		int exWavelength = 0;
+		int exWavelength = -1;
 
 		ImageStatistics stats;
 		Roi[] selections = roi.getRoisAsArray();
 		for( int i = 1; i <= imp.getStackSize(); i++ )
 		{
-			if( i == excitationWavelengths )
+			if( ( i -1 ) % 10 == 0 )
 				exWavelength++;
 
-			emWavelength = (i - 1) % 10;
+			emWavelength = (i  -1) % 10;
 
 			imp.setSliceWithoutUpdate( i );
 			double total = 0;
