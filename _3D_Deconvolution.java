@@ -217,7 +217,7 @@ class FrettySpectraSelector3D extends JPanel
 			public void actionPerformed( ActionEvent e ){
 				if( spectrum != null )
 				{
-					SaveDialog sd = new SaveDialog ("Select a spectrum file", "", ".spec" );
+					SaveDialog sd = new SaveDialog ("Select a spectrum file", "", ".spec3d" );
 	
 					//Steal the focus back from the main imagej window :(
 					requestFocus();

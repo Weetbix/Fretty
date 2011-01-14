@@ -86,23 +86,6 @@ public class Spectrum3D
 		ps.close();		
 	}
 
-	/*
-		if( values.length <= 0 || values[0].length <= 0 ) return;
-
-		ResultsTable window = new ResultsTable();
-		window.reset();
-
-		for( int x = 0; x < values.length; x++ )
-		{
-			window.incrementCounter();
-			for( int y = 0; y < values[0].length; y++ )
-			{
-
-				window.addValue( Float.toString(x), values[x][y] );		
-			}
-		}
-*/
-
 	public void displayInResultsWindow()
 	{
 		if( values.length <= 0 || values[0].length <= 0 ) return;
