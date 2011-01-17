@@ -25,12 +25,12 @@ public class Spectrum3D
 
 	public int getEmissionWavelengths()
 	{
-		return values.length;
+		return values[0].length;
 	}
 	
 	public int getExcitationWavelengths()
 	{
-		return values[0].length;
+		return values.length;
 	}
 
 	//Sets all the values of the spectrum to 0
