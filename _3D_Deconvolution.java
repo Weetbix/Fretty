@@ -127,13 +127,13 @@ class FrettyReferenceSpectraPanel3D extends JPanel
 		//set all the callbacks, so the processor knows when a spectrum has changed...
 		SD.setListener( new FrettySpectraSelector3D.SpectrumChangedEvent(){
 			public void onChange(){
-				//processor.setSDDSpectrum( SDD.getSpectrum() );
+				processor.setSDSpectrum( SD.getSpectrum() );
 			}
 		});
 
 		SA.setListener( new FrettySpectraSelector3D.SpectrumChangedEvent(){
 			public void onChange(){
-				//processor.setSADSpectrum( SAD.getSpectrum() );
+				processor.setSASpectrum( SA.getSpectrum() );
 			}
 		});
 

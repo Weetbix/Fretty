@@ -14,8 +14,8 @@ public class FRETProcessor3D
 	float acceptorQuantumYield = 0.5f;
 
 	//Reference Spectra
-	Spectrum SD;
-	Spectrum SA;
+	Spectrum3D SD;
+	Spectrum3D SA;
 
 	ImagePlus donorExcitationStack;
 
@@ -64,22 +64,22 @@ public class FRETProcessor3D
 		return acceptorQuantumYield;
 	}
 
-	void setSDSpectrum( Spectrum s )
+	void setSDSpectrum( Spectrum3D s )
 	{
 		SD = s;
 	}
 	
-	Spectrum getSDSpectrum()
+	Spectrum3D getSDSpectrum()
 	{
 		return SD;
 	}
 
-	void setSASpectrum( Spectrum s ) 
+	void setSASpectrum( Spectrum3D s ) 
 	{
 		SA = s;
 	}
 
-	Spectrum getSASpectrum()
+	Spectrum3D getSASpectrum()
 	{
 		return SA;
 	}
@@ -257,34 +257,46 @@ public class FRETProcessor3D
 	{
 		basicErrorChecks();
 		
-		//Check that the donor stack is a multiple of the wavelengthspersample ( so we can accept mega stacks );
-		//if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
-		//	throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
-		//						"slices, it must be a multiple of the wavelengths per sample." );
+		//Check that the donor stack is a multiple of the excitationWavelengths ( so we can accept mega stacks );
+		//The stack must be atleast <excitation wavelengths> big
+		if( donorExcitationStack.getStackSize() % excitationWavelengths != 0 )
+			throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of " + 
+								"slices, it must be a multiple of the excitationWavelengths." );
+
+		if( donorExcitationStack.getStackSize() < excitationWavelengths )
+			throw new IllegalArgumentException( "The donor excitation stack does not have enough slices, it must have atleast excitationWavelengths slices" );
+
+		//Check that the donor stack has the correct number of samples, that also allow it to be a megastack. 
+		if( (donorExcitationStack.getStackSize() / excitationWavelengths ) % SA.getEmissionWavelengths() != 0 )
+			throw new IllegalArgumentException( "The donor excitation stack does not have the correct number of slices" );
 	}
 
 	//checks that all basic params are setup correctly to call either createIMage or getEvalue
 	//basically this function contains shared error checks. 
 	private void basicErrorChecks()
 	{
-		//Check that the SDD and SAD spectrums exist
+		//Check that the SD and SA spectrums exist
 		if( SD == null ) 
 			throw new NullPointerException( "No SD spectrum set" );
 		if( SA == null ) 
 			throw new NullPointerException( "No SA spectrum set" );
 
-		//Check that the SDD and SAD spectrums have the correct number of samples
-		//if( SD.getSize() != wavelengthsPerSample )
-		//	throw new IllegalArgumentException( "The SDD spectrum doesn't have the correct number of samples (has " + 
-		//						SDD.getSize() + " needs " + wavelengthsPerSample + ")" );
-		
-		//if( SAD.getSize() != wavelengthsPerSample )
-		//	throw new IllegalArgumentException( "The SAD spectrum doesn't have the correct number of samples (has " + 
-		//						SAD.getSize() + " needs " + wavelengthsPerSample + ")" );	
+		//Check that the SD and SA spectrums have the correct number of samples
+		if( SD.getExcitationWavelengths() != excitationWavelengths )
+			throw new IllegalArgumentException( "The SD Spectrum doesn't have the correct number of excitaiton wavelengths ( has " + 
+									SD.getExcitationWavelengths() + " needs " + excitationWavelengths + ")" );
+
+		if( SA.getExcitationWavelengths() != excitationWavelengths )
+			throw new IllegalArgumentException( "The SD Spectrum doesn't have the correct number of excitaiton wavelengths ( has " + 
+									SD.getExcitationWavelengths() + " needs " + excitationWavelengths + ")" );
+
+		if( SD.getEmissionWavelengths() != SA.getEmissionWavelengths() ) 
+			throw new IllegalArgumentException( "The SA and SD Spectra do not have the same number of emission wavlengths. (SA has " + 
+									SA.getEmissionWavelengths() + " and SD has " + SD.getEmissionWavelengths() + ")" );
 
 		//Check the stacks are set correctly. 
-		//if( donorExcitationStack == null ) 
-		//	throw new NullPointerException( "The donor excitation stack has not been set." );
+		if( donorExcitationStack == null ) 
+			throw new NullPointerException( "The donor excitation stack has not been set." );
 		
 	}
 }
