@@ -18,10 +18,14 @@ public class Spectrum3D
 		clear();
 	}
 
-	//public Spectrum( Spectrum old )
-	//{
-	//	values = new ArrayList<Float>(old.values);
-	//}
+	public Spectrum3D( Spectrum3D old )
+	{
+		values = new float[old.values.length][old.values[0].length];
+		
+		for( int x = 0; x < values.length; x++ )
+			for( int y = 0; y < values[0].length; y++ )
+				values[x][y] = old.values[x][y];
+	}
 
 	public int getEmissionWavelengths()
 	{
@@ -125,20 +129,26 @@ public class Spectrum3D
 		window.show( "Spectrum" );
 	}
 
-	/*
-	public void normaliseTo( float quantumYield )
+	//Returns the sum of all values in the spectrum
+	public float sum()
 	{
 		float total = 0;
-		for( float val : values )
-		{
-			total += val;
-		}
-		
-		for( int i = 0; i < values.size(); i++ )
-		{
-			values.set(i, (values.get(i) / total) * quantumYield );
-		}
-	}*/
+
+		for( int x = 0; x < values.length; x++ )
+			for( int y = 0; y < values[0].length; y++ )
+				total += values[x][y];
+
+		return total;				
+	}
+
+	public void normaliseTo( float quantumYield )
+	{
+		final float total = sum();
+
+		for( int x = 0; x < values.length; x++ )
+			for( int y = 0; y < values[0].length; y++ )
+				values[x][y] = ( values[x][y] / total ) * quantumYield;
+	}
 
 	public float[][] asArray()
 	{
