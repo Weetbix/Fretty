@@ -131,6 +131,51 @@ public class FRETProcessor3D
 	{
 		imageErrorChecks();
 
+		//Loop through each pixel in the image stack, for each pixel make a float array 
+		//which will be our spectrum. For each of these spectra pass them to findCoefficients
+		//we use each e value returned as the final value of that pixel in the output FRET image.
+
+		final int numSpectra = donorExcitationStack.getWidth() * donorExcitationStack.getHeight();
+
+		//normalise the reference spectra to their respectful quantum yield
+		Spectrum3D SDn = new Spectrum3D( SD );
+		Spectrum3D SAn = new Spectrum3D( SA );
+
+		SDn.normaliseTo( donorQuantumYield );
+		SAn.normaliseTo( acceptorQuantumYield );
+
+		//save the raw arrays for quick access 
+		float SDnArray[][] = SDn.asArray();
+		float SAnArray[][] = SAn.asArray();
+
+		final int emissionWavelengths = SD.getEmissionWavelengths();
+
+		float sum_d[] = new float[excitationWavelengths];
+		float sum_a[] = new float[emissionWavelengths];
+
+	
+		//Create the FRET spectrum 
+		for( int x = 0; x < excitationWavelengths; x++ )
+			for( int y = 0; y < emissionWavelengths; y++ )
+				sum_d[x] = sum_d[x] + SDnArray[x][y];
+
+		
+		for( int y = 0; y < emissionWavelengths; y++ )
+			for( int x = 0; x < excitationWavelengths; x++ )
+				sum_a[y] = sum_a[y] + SAnArray[x][y];
+
+		Spectrum3D FRETSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
+		float FRETSpectrumArray[][] = FRETSpectrum.asArray();
+	
+		for( int y = 0; y < emissionWavelengths; y++ )
+			for( int x = 0; x < excitationWavelengths; x++ )
+				FRETSpectrum.setValue( x, y, sum_d[x] * sum_a[y] );
+
+		FRETSpectrum.displayInResultsWindow();
+				
+
+
+
 		/*
 		//Loop through each pixel in the image stack. For each pixel make a float array
 		//which will be our spectrum. For each of these spectrums pass them findCoefficients
