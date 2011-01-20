@@ -145,8 +145,8 @@ public class FRETProcessor3D
 		SAn.normaliseTo( acceptorQuantumYield );
 
 		//save the raw arrays for quick access 
-		float SDnArray[][] = SDn.asArray();
-		float SAnArray[][] = SAn.asArray();
+		float SDArray[][] = SD.asArray();
+		float SAArray[][] = SA.asArray();
 
 		final int emissionWavelengths = SD.getEmissionWavelengths();
 
@@ -154,15 +154,17 @@ public class FRETProcessor3D
 		float sum_a[] = new float[emissionWavelengths];
 
 	
+		////////////////////////////////////////////////////////////////
 		//Create the FRET spectrum 
+		/////////////////////////////////////////////////////////////////
+
 		for( int x = 0; x < excitationWavelengths; x++ )
 			for( int y = 0; y < emissionWavelengths; y++ )
-				sum_d[x] = sum_d[x] + SDnArray[x][y];
+				sum_d[x] = sum_d[x] + SDArray[x][y];
 
-		
 		for( int y = 0; y < emissionWavelengths; y++ )
 			for( int x = 0; x < excitationWavelengths; x++ )
-				sum_a[y] = sum_a[y] + SAnArray[x][y];
+				sum_a[y] = sum_a[y] + SAArray[x][y];
 
 		Spectrum3D FRETSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
 		float FRETSpectrumArray[][] = FRETSpectrum.asArray();
@@ -171,8 +173,25 @@ public class FRETProcessor3D
 			for( int x = 0; x < excitationWavelengths; x++ )
 				FRETSpectrum.setValue( x, y, sum_d[x] * sum_a[y] );
 
+		//Calculate quantum yeild for the FRET spetrum
+		// Qf = ( [sum SD]/[sum Sf] ) * Qd * Qa;
+		float fretQuantumYield = ((( SD.sum() / FRETSpectrum.sum() ) * donorQuantumYield) * acceptorQuantumYield);
+	
+		IJ.showMessage( "SD.sum() / FRETSP.sum() = ( " + SD.sum() + " / " + FRETSpectrum.sum() + " ) = " + SD.sum() / FRETSpectrum.sum() );
+		IJ.showMessage( "donor q y = " + donorQuantumYield + " --- acc q y = " + acceptorQuantumYield );
+		IJ.showMessage( "it is " + fretQuantumYield );
+		FRETSpectrum.normaliseTo( fretQuantumYield );
 		FRETSpectrum.displayInResultsWindow();
+
 				
+
+
+
+
+
+
+
+
 
 
 
