@@ -98,10 +98,74 @@ public class FRETProcessor3D
 	// Begin methods that actually do important stuff
 	////////////////////////////////////////////////////////////////////////////
 
-	//Returns an E value using the current settings of this object, and given a
-	//single FRET spectrum.
-	public double findEValue( Spectrum S )
+	//Creates the 3D Fret spectrum from donor only and acceptor only spectra
+	//SDn and SAn should be normalised acceptor and donor spectra
+	public Spectrum3D createFRETSpectrum( Spectrum3D SDn, Spectrum3D SAn )
 	{
+		//save the raw arrays for quick access 
+		float SDnArray[][] = SDn.asArray();
+		float SAnArray[][] = SAn.asArray();
+
+		final int emissionWavelengths =  SDn.getEmissionWavelengths();
+		final int excitationWavelengths = SDn.getExcitationWavelengths();
+	
+		float sum_d[] = new float[excitationWavelengths];
+		float sum_a[] = new float[emissionWavelengths];
+	
+		////////////////////////////////////////////////////////////////
+		//Create the FRET spectrum 
+		/////////////////////////////////////////////////////////////////
+
+		for( int x = 0; x < excitationWavelengths; x++ )
+			for( int y = 0; y < emissionWavelengths; y++ )
+				sum_d[x] = sum_d[x] + SDnArray[x][y];
+
+
+		for( int x = 0; x < excitationWavelengths; x++ )
+			for( int y = 0; y < emissionWavelengths; y++ )
+				sum_a[y] = sum_a[y] + SAnArray[x][y];
+
+		Spectrum3D FRETSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
+		float FRETSpectrumArray[][] = FRETSpectrum.asArray();
+	
+		for( int y = 0; y < emissionWavelengths; y++ )
+			for( int x = 0; x < excitationWavelengths; x++ )
+				FRETSpectrum.setValue( x, y, sum_d[x] * sum_a[y] );
+
+		return FRETSpectrum;
+	}
+
+	//Returns an E value using the current settings of this object, and given a
+	//single 3D FRET spectrum.
+	// S is the combined FRET spectrum. Eg the spectrum from the fret image
+	public double findEValue( Spectrum3D S )
+	{
+
+		findEValueChecks();
+
+		//normalise the reference spectra to their respectful quantum yield
+		Spectrum3D SDn = new Spectrum3D( SD );
+		Spectrum3D SAn = new Spectrum3D( SA );
+
+		SDn.normaliseTo( donorQuantumYield );
+		SAn.normaliseTo( acceptorQuantumYield );
+
+		Spectrum3D FRETSpectrum = createFRETSpectrum( SDn, SAn );
+
+		//combine the spectras into a nice array that we can use with findCoefficients
+		float[][][] refs = new float[3][][];
+		refs[0] = SDn.asArray();
+		refs[1] = SAn.asArray();
+		refs[2] = FRETSpectrum.asArray();
+
+		double[] coefficients = findCoefficients( refs, S.asArray() );
+
+		// SDA = dSD + aSA + fSF + bB
+		// and E = f / d + f
+		return coefficients[2] / ( coefficients[0] + coefficients[2] );
+
+		
+		/*
 		imageErrorChecks();
 
 		//Normalise the required spectra to their quantum yield
@@ -121,6 +185,7 @@ public class FRETProcessor3D
 		//return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
 
 		return 0; //TEMPORARRRRRRRYYYYYYYYYYY
+		*/
 	}
 
 	//Creates an image of E values for each pixel in a FRET image.
@@ -145,14 +210,13 @@ public class FRETProcessor3D
 		SAn.normaliseTo( acceptorQuantumYield );
 
 		//save the raw arrays for quick access 
-		float SDArray[][] = SD.asArray();
-		float SAArray[][] = SA.asArray();
+		float SDnArray[][] = SDn.asArray();
+		float SAnArray[][] = SAn.asArray();
 
 		final int emissionWavelengths = SD.getEmissionWavelengths();
-
+	
 		float sum_d[] = new float[excitationWavelengths];
 		float sum_a[] = new float[emissionWavelengths];
-
 	
 		////////////////////////////////////////////////////////////////
 		//Create the FRET spectrum 
@@ -160,11 +224,16 @@ public class FRETProcessor3D
 
 		for( int x = 0; x < excitationWavelengths; x++ )
 			for( int y = 0; y < emissionWavelengths; y++ )
-				sum_d[x] = sum_d[x] + SDArray[x][y];
+				sum_d[x] = sum_d[x] + SDnArray[x][y];
 
-		for( int y = 0; y < emissionWavelengths; y++ )
-			for( int x = 0; x < excitationWavelengths; x++ )
-				sum_a[y] = sum_a[y] + SAArray[x][y];
+
+		for( int x = 0; x < excitationWavelengths; x++ )
+			for( int y = 0; y < emissionWavelengths; y++ )
+				sum_a[y] = sum_a[y] + SAnArray[x][y];
+
+		//changes from original
+		//a and d normalised before making fret spectrum from them. no need for q3
+		//change q so that q3 is the fret spectrum total so that fret spectrum isnt normalised 
 
 		Spectrum3D FRETSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
 		float FRETSpectrumArray[][] = FRETSpectrum.asArray();
@@ -173,19 +242,11 @@ public class FRETProcessor3D
 			for( int x = 0; x < excitationWavelengths; x++ )
 				FRETSpectrum.setValue( x, y, sum_d[x] * sum_a[y] );
 
-		//Calculate quantum yeild for the FRET spetrum
-		// Qf = ( [sum SD]/[sum Sf] ) * Qd * Qa;
-		float fretQuantumYield = ((( SD.sum() / FRETSpectrum.sum() ) * donorQuantumYield) * acceptorQuantumYield);
-	
-		IJ.showMessage( "SD.sum() / FRETSP.sum() = ( " + SD.sum() + " / " + FRETSpectrum.sum() + " ) = " + SD.sum() / FRETSpectrum.sum() );
-		IJ.showMessage( "donor q y = " + donorQuantumYield + " --- acc q y = " + acceptorQuantumYield );
-		IJ.showMessage( "it is " + fretQuantumYield );
-		FRETSpectrum.normaliseTo( fretQuantumYield );
 		FRETSpectrum.displayInResultsWindow();
 
-				
 
-
+		IJ.showMessage( "SA sum = " + SA.sum() ) ;
+		IJ.showMessage( "Fret Sum: " + FRETSpectrum.sum() );
 
 
 
@@ -259,8 +320,45 @@ public class FRETProcessor3D
 	// S - Combined/FRET spectra
 	// All spectra must be of the same length
 	// Returns an array of the coefficients 
-	public double[] findCoefficients( float[][] R, float[] S )
+	public double[] findCoefficients( float[][][] R, float[][] S )
 	{
+   
+		//We need to reorganise all spectra to fit into some linear equations so
+		//we can use the matrix library to solve for the coefficeints...
+		//Eg. Ax = b, solving for x 
+		
+		final int numSpectra= R.length;		//Number of spectra we are trying to fit for
+		final int numEmissions = R[0][0].length;	//The number of wavelength samples per spectrum
+		final int numExcitations = R[0].length;		//The number of excitation wavelengths per spectrum
+
+		double[][] A = new double[numSpectra][numSpectra];
+		double[] b = new double[numSpectra];
+
+		for( int i = 0; i < numExcitations; i++ )
+		{
+			for( int j = 0; j < numEmissions; j++ )
+			{
+				for( int k = 0; k < numSpectra; k++ )
+				{
+					for( int m = 0; m < numSpectra; m++ )
+					{
+						A[k][m] = A[k][m] + R[k][i][j] * R[m][i][j];
+					}
+					b[k]= b[k] + S[i][j] * R[k][i][j];
+				}
+			}
+
+		}
+
+		//use jama to solve for the final coefficients matrix
+		Matrix Alpha = new Matrix( A, numSpectra, numSpectra );
+		Matrix beta = new Matrix( b, numSpectra );
+
+		Matrix x = Alpha.solve( beta );
+
+		return x.getColumnPackedCopy();
+
+	/*
 		//We need to reorganise all spectra to fit into some linear equations so
 		//we can use the matrix library to solve for the coefficeints...
 		//Eg. Ax = b, solving for x 
@@ -300,6 +398,8 @@ public class FRETProcessor3D
 		Matrix x = Alpha.solve( beta );
 
 		return x.getColumnPackedCopy();
+
+	*/
 	}
 
 	//Checks that all params are setup correctly to call findEValue. 

@@ -507,7 +507,7 @@ public class _3D_Deconvolution extends PlugInFrame
 			p.add( b );
 
 			b = new JButton( "ROI FRET Values" );
-			/*
+			
 			b.addActionListener( new ActionListener(){
 				public void actionPerformed( ActionEvent e )
 				{
@@ -526,7 +526,7 @@ public class _3D_Deconvolution extends PlugInFrame
 						}
 
 						//get a list of FRET spectra from the current stack and ROIs
-						Spectrum[] spectra = SpectrumGenerator.arrayFromROI( donorStack );
+						Spectrum3D[] spectra = SpectrumGenerator.array3DFromROI( donorStack, processor.getExcitationWavelengths() );
 					
 						if( spectra == null || spectra.length <= 0 ) return;
 						
@@ -567,7 +567,7 @@ public class _3D_Deconvolution extends PlugInFrame
 											JOptionPane.ERROR_MESSAGE );
 					}
 				}
-			});*/
+			});
 			p.add( b );
 
 		add( p );

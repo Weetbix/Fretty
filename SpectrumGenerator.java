@@ -152,4 +152,62 @@ public class SpectrumGenerator
 
 		return spectra;
 	}
+
+	//works with 3D spectra
+	//Returns an array of spectrum objects based on the ROIs. length of the array will
+	//be equal to the total number of ROIs in the ROI manager. This method does not
+	//average or weigh between ROIs like in generateFromROI
+	public static Spectrum3D[] array3DFromROI( ImagePlus imp,  int excitationWavelengths )
+	{
+		
+		//Requires the ROI manager open...
+		if( !ROIManagerCheck() ) return null;
+
+		RoiManager roi = RoiManager.getInstance();
+		int originalSlice = imp.getSlice();
+
+		final int emissionWavelengths =  imp.getStackSize() / excitationWavelengths;
+
+		Spectrum3D spectra[] = new Spectrum3D[ roi.getCount() ];
+		for( int i = 0; i < spectra.length; i ++ )
+			spectra[i] = new Spectrum3D(excitationWavelengths, emissionWavelengths );
+
+		//The current stack must be a mulitple of the excitation wavelengths!
+		if( imp.getStackSize() % excitationWavelengths != 0 )
+		{
+			IJ.showMessage( "Error: The current stack is not a multiple of the excitation wavelength!" );
+			return null;
+		}
+
+		//current emission wavelength
+		int emWavelength = 0;
+		//current excitation wavelength
+		int exWavelength = -1;
+
+		ImageStatistics stats;
+		Roi[] selections = roi.getRoisAsArray();
+		for( int i = 1; i <= imp.getStackSize(); i++ )
+		{
+			if( ( i -1 ) % emissionWavelengths == 0 )
+				exWavelength++;
+
+			emWavelength = (i  -1) % emissionWavelengths ;
+
+			imp.setSliceWithoutUpdate( i );
+			double total = 0;
+			for( int roi_num = 0; roi_num < roi.getCount(); roi_num++ )
+			{
+				//For each ROI in the current slice, find the mean value
+				imp.setRoi( selections[roi_num], false );
+	
+				//Maybe slow? Seems to calculate the other stats even though we 
+				//only asked it to calculate the mean. 
+				stats = imp.getStatistics( Measurements.MEAN );
+				spectra[roi_num].setValue( exWavelength, emWavelength, (float)(stats.mean) );
+			}
+		}
+
+		imp.setSliceWithoutUpdate( originalSlice );
+		return spectra;
+	}
 }
