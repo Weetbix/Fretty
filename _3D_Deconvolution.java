@@ -519,9 +519,9 @@ public class _3D_Deconvolution extends PlugInFrame
 						if( donorStack == null )
 						{
 							JOptionPane.showMessageDialog( 	null, 
-									"You need to select a donor stack", 
-									"Error",
-									JOptionPane.ERROR_MESSAGE );
+												"You need to select a donor stack", 
+												"Error",
+												JOptionPane.ERROR_MESSAGE );
 							return;
 						}
 

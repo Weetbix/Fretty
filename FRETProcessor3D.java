@@ -163,29 +163,6 @@ public class FRETProcessor3D
 		// SDA = dSD + aSA + fSF + bB
 		// and E = f / d + f
 		return coefficients[2] / ( coefficients[0] + coefficients[2] );
-
-		
-		/*
-		imageErrorChecks();
-
-		//Normalise the required spectra to their quantum yield
-		//Spectrum SDDn = new Spectrum( SDD );
-		//Spectrum SADn = new Spectrum( SAD );
-
-		//SDDn.normaliseTo( donorQuantumYield );
-		//SADn.normaliseTo( acceptorQuantumYield );
-			
-		//combine the reference spectra into an array
-		//float[][] refs = new float[2][];
-		//refs [0] = SDDn.asArray();
-		//refs [1] = SADn.asArray();
-
-		//double[] coefficients = findCoefficients( refs, S.asArray() );
-
-		//return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
-
-		return 0; //TEMPORARRRRRRRYYYYYYYYYYY
-		*/
 	}
 
 	//Creates an image of E values for each pixel in a FRET image.
@@ -357,49 +334,6 @@ public class FRETProcessor3D
 		Matrix x = Alpha.solve( beta );
 
 		return x.getColumnPackedCopy();
-
-	/*
-		//We need to reorganise all spectra to fit into some linear equations so
-		//we can use the matrix library to solve for the coefficeints...
-		//Eg. Ax = b, solving for x 
-
-		final int numSpectra= R.length;		//Number of spectra we are trying to fit for
-		final int numWavelengths = R[0].length;	//The number of wavelength samples per spectrum
-
-		double[][] A = new double[numSpectra][numSpectra];
-		double[] b = new double[numSpectra];
-
-		for( int i = 0; i < numSpectra; i++ )
-		{
-			for( int j = 0; j < numSpectra; j++ )
-			{
-				A[i][j] = 0;
-			}
-			b[i] = 0;
-		}
-
-		//Fill the arrays with our linear equations 
-		for( int i = 0; i < numWavelengths ; i++ )
-		{
-			for( int k = 0; k < numSpectra; k++ )
-			{
-				for( int j = 0; j < numSpectra; j++ )
-				{
-					A[k][j] = A[k][j] + R[j][i] * R[k][i];
-				}
-				b[k] = b[k] + S[i] * R[k][i];
-			}
-		}
-
-		//Use jama to solve for the final coefficients matrix
-		Matrix Alpha = new Matrix( A, numSpectra, numSpectra );
-		Matrix beta = new Matrix( b, numSpectra );
-
-		Matrix x = Alpha.solve( beta );
-
-		return x.getColumnPackedCopy();
-
-	*/
 	}
 
 	//Checks that all params are setup correctly to call findEValue. 
@@ -407,12 +341,11 @@ public class FRETProcessor3D
 	private void findEValueChecks()
 	{
 		basicErrorChecks();
-	
+
 		//Check that the donor stack is EXACTLY the size of the wavelengthspersample
 		//This is because you need to select ROIs and these wont match for mega stacks!
-		//if( donorExcitationStack.getStackSize() % wavelengthsPerSample != 0 )
-		//	throw new IllegalArgumentException( "The donor excitation stack must be the same size" + 
-		//						" as the wavelengths per sample." );
+		if( SD.getExcitationWavelengths() * SD.getEmissionWavelengths() != donorExcitationStack.getStackSize() )
+			throw new IllegalArgumentException( "The donor stack must be the correct size (excitationWavs * EmissionWavs)" );
 	}
 
 	//Checks that all params are setup correctly to call CreateFRETImage, throws 
