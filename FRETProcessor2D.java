@@ -35,6 +35,11 @@ public class FRETProcessor2D
 		crossExcitationCorrection = yesno;
 	}
 
+	boolean crossExcitationCorrectionEnabled()
+	{
+		return crossExcitationCorrection;
+	}
+
 	//Must be > 0 (durrrh). Returns false if value not accepted
 	boolean setWavelengthsPerSample( int wlps )
 	{
@@ -132,9 +137,28 @@ public class FRETProcessor2D
 
 	//Returns an E value using the current settings of this object, and given a
 	//single FRET spectrum.
-	public double findEValue( Spectrum S )
+	//SDAA is the mixed spectrum with acceptor excitation, may be NULL if you are
+	//not using cross excitation
+	public double findEValue( Spectrum S, Spectrum SDAA )
 	{
 		imageErrorChecks();
+	
+		float[] FRETSpectrum = S.asArray();
+
+		if( crossExcitationCorrection )
+		{
+			if( SDAA == null ) 
+				throw new NullPointerException( "Cross excitation enabled but no SDAA spec passed" );
+
+			float[] Cex = makeCrossExCorrectionSpectrum( SAD.asArray(), 
+									   SAA.asArray(), 
+									   SDAA.asArray() );
+			
+			//remove the cross excitation part of the FRET spectrum
+			for( int i = 0; i < wavelengthsPerSample; i++ )
+				FRETSpectrum[i] = FRETSpectrum[i] - Cex[i];
+		}
+
 
 		//Normalise the required spectra to their quantum yield
 		Spectrum SDDn = new Spectrum( SDD );
@@ -148,7 +172,7 @@ public class FRETProcessor2D
 		refs [0] = SDDn.asArray();
 		refs [1] = SADn.asArray();
 
-		double[] coefficients = findCoefficients( refs, S.asArray() );
+		double[] coefficients = findCoefficients( refs, FRETSpectrum );
 
 		return coefficients[1] / ( coefficients[0] + coefficients[1] ); 
 	}
@@ -161,6 +185,9 @@ public class FRETProcessor2D
 	{
 		imageErrorChecks();
 
+		float[] SADarray = SAD.asArray();
+		float[] SAAarray = SAA.asArray();
+		
 		//Loop through each pixel in the image stack. For each pixel make a float array
 		//which will be our spectrum. For each of these spectrums pass them findCoefficients
 		//For each e value returned, we can create a new image.
@@ -193,7 +220,20 @@ public class FRETProcessor2D
 			processors[i] = donorExcitationStack.getStack().getProcessor(i + 1);
 		}
 
+		//also cache for the acceptor stack if we are doing cross excitation correction
+		ImageProcessor[] acceptorProcessors = null; 
+		if( crossExcitationCorrection )
+		{
+			acceptorProcessors = new ImageProcessor[ donorExcitationStack.getStackSize() ];
+			for( int i = 0; i < acceptorExcitationStack.getStackSize(); i++ )
+			{	
+				acceptorProcessors[i] = acceptorExcitationStack.getStack().getProcessor(i + 1);
+			}
+		}
+
 		float[] spectrum = new float[ wavelengthsPerSample ];
+		float[] acceptorSpectrum = new float[ wavelengthsPerSample ];
+
 		//for each 'pixel' or spectrum....
 		for( int specNum = 0; specNum  < numSpectra; specNum  ++ )
 		{
@@ -204,6 +244,21 @@ public class FRETProcessor2D
 			for( int slice= 0; slice< wavelengthsPerSample; slice++ )
 			{
 				spectrum[ slice ] = processors[slice].getPixelValue( x, y );
+			}
+
+			if( crossExcitationCorrection )
+			{		
+				//generate the spectrum from the acceptor stack
+				for( int slice= 0; slice< wavelengthsPerSample; slice++ )
+				{
+					acceptorSpectrum[ slice ] = acceptorProcessors[slice].getPixelValue( x, y );
+				}
+
+				float Cex[] = makeCrossExCorrectionSpectrum( SADarray, SAAarray, acceptorSpectrum );
+
+				//remove the cross excitation part of the FRET spectrum
+				for( int i = 0; i < wavelengthsPerSample; i++ )
+					spectrum[i] = spectrum[i] - Cex[i];
 			}
 
 			//now that we have a spectrum for this pixel, put it through the coefficients solver...
@@ -266,6 +321,30 @@ public class FRETProcessor2D
 		return x.getColumnPackedCopy();
 	}
 
+	//Creates and returns a cross excitation correction spectrum 
+	//you must passs it the spectrum for the donor-acceptor sample with acceptor excitation
+	// (as this is the only spectra that changes) and it will use the reference spectra already
+	// stored to calculate and return the Cex spectra
+	// SAD - acceptor reference spectra with donor excitation
+	// SAA - Acceptor reference spectra with acceptor excitation
+	// SDAA - donor-acceptor sample with acceptor excitation
+	private float[] makeCrossExCorrectionSpectrum( float[] SAD, float[] SAA, float[] SDAA )
+	{
+		//put the spectrum in a 2d array for findcoeffs
+		float[][] refs = new float[1][];
+		refs[0] = SDAA;
+
+		//fit the acceptor only donor excfitation to acceptor only acceptor excitation
+		double[] coefficients = findCoefficients( refs, SAA );
+
+		// Cex = coeff[0] * SAD
+		float[] Cex = new float[wavelengthsPerSample];
+		for( int i = 0; i < wavelengthsPerSample; i++ )
+			Cex[i] = (float) coefficients[0] * SAD[i];
+
+		return Cex;
+	}
+
 	//Checks that all params are setup correctly to call findEValue. 
 	//Checks are a little different to createImage
 	private void findEValueChecks()
@@ -291,29 +370,36 @@ public class FRETProcessor2D
 								"slices, it must be a multiple of the wavelengths per sample." );
 	}
 
+	//checks that all params are setup so that cross excitation can be called safely
+	//throws exceptions if not. 
+	public void crossExcitationErrorChecks()
+	{
+		if( SAA == null )
+			throw new NullPointerException( "No SAA spectrum set" );
+
+		//Check that the SAA spectrum has the correct number of samples 
+		if( SAA.getSize() != wavelengthsPerSample ) 
+			throw new IllegalArgumentException( "The SAA spectrum doesn't have the correct number of samples (has " +
+								SAA.getSize() + " needs " + wavelengthsPerSample + ")" );
+
+		//Check the acceptor excitation stack is okay/legit
+		if( acceptorExcitationStack == null ) 
+			throw new NullPointerException( "No acceptor excitation stack indicated" );
+
+		//acceptor stack must be the same size as the donor stack
+		if( donorExcitationStack != null && acceptorExcitationStack.getStackSize() != donorExcitationStack.getStackSize() )
+			throw new IllegalArgumentException( "The acceptor stack and donor stack must be of the same size! donor " + 
+								"stack has " + donorExcitationStack.getStackSize() + " slices, and acceptor " + 
+								" stack has " + acceptorExcitationStack.getStackSize() );
+	}
+
 	//checks that all basic params are setup correctly to call either createIMage or getEvalue
 	//basically this function contains shared error checks. 
 	private void basicErrorChecks()
 	{
 		if( crossExcitationCorrection )
 		{
-			if( SAA == null )
-				throw new NullPointerException( "No SAA spectrum set" );
-
-			//Check that the SAA spectrum has the correct number of samples 
-			if( SAA.getSize() != wavelengthsPerSample ) 
-				throw new IllegalArgumentException( "The SAA spectrum doesn't have the correct number of samples (has " +
-									SAA.getSize() + " needs " + wavelengthsPerSample + ")" );
-
-			//Check the acceptor excitation stack is okay/legit
-			if( acceptorExcitationStack == null ) 
-				throw new NullPointerException( "No acceptor excitation stack indicated" );
-
-			//acceptor stack must be the same size as the donor stack
-			if( donorExcitationStack != null && acceptorExcitationStack.getStackSize() != donorExcitationStack.getStackSize() )
-				throw new IllegalArgumentException( "The acceptor stack and donor stack must be of the same size! donor " + 
-									"stack has " + donorExcitationStack.getStackSize() + " slices, and acceptor " + 
-									" stack has " + acceptorExcitationStack.getStackSize() );
+			crossExcitationErrorChecks();
 		}
 
 		//Check that the SDD and SAD spectrums exist

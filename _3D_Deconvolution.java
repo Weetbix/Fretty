@@ -493,7 +493,7 @@ public class _3D_Deconvolution extends PlugInFrame
 			
 						float seconds = elapsedMillis / 1000F;
 
-						IJ.showMessage( "Milliseconds", "=" + elapsedMillis );
+						IJ.showStatus( "E-Value image took: " + elapsedMillis + " Milliseconds" );
 					}
 					catch( Exception ex ) 
 					{

@@ -556,7 +556,7 @@ public class _2D_Deconvolution extends PlugInFrame
 			
 						float seconds = elapsedMillis / 1000F;
 
-						IJ.showMessage( "Milliseconds", "=" + elapsedMillis );
+						IJ.showStatus( "E-Value image took: " + elapsedMillis + " Milliseconds" );
 					}
 					catch( Exception ex ) 
 					{
@@ -577,6 +577,7 @@ public class _2D_Deconvolution extends PlugInFrame
 					{
 						FRETSamplesPanel.updateProcessor();
 						ImagePlus donorStack = processor.getDonorExcitationStack();
+						ImagePlus acceptorStack = processor.getAcceptorExcitationStack();
 				
 						if( donorStack == null )
 						{
@@ -591,12 +592,27 @@ public class _2D_Deconvolution extends PlugInFrame
 						Spectrum[] spectra = SpectrumGenerator.arrayFromROI( donorStack );
 					
 						if( spectra == null || spectra.length <= 0 ) return;
-						
+
 						//Get the results ready so we can have something to fill the table with...
 						double[] evals = new double[spectra.length];
-						for( int i = 0; i < spectra.length; i++ )
+
+						//get a list of spectra for the acceptor excitaiton stack if we are doing cross excitation correction
+						if( processor.crossExcitationCorrectionEnabled() )
 						{
-							evals[i] = processor.findEValue( spectra[i] );
+							processor.crossExcitationErrorChecks(); 
+							Spectrum[] acceptorSpectra = SpectrumGenerator.arrayFromROI( acceptorStack );
+
+							for( int i = 0; i < spectra.length; i++ )
+							{
+								evals[i] = processor.findEValue( spectra[i], acceptorSpectra[i] );
+							}
+						}
+						else
+						{
+							for( int i = 0; i < spectra.length; i++ )
+							{
+								evals[i] = processor.findEValue( spectra[i], null );
+							}
 						}
 
 						double average = 0;

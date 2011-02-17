@@ -168,14 +168,14 @@ public class FRETProcessor3D
 	//Creates an image of E values for each pixel in a FRET image.
 	//Potential optimisations:
 	//	- save references to pixel arrays instead of using getPixelValue/setPixelValue
-	//		- will require require the image to be in 1 specific format, eg 32-bit
+	//	- will require require the image to be in 1 specific format, eg 32-bit
 	public void createFRETImage()
 	{
 		imageErrorChecks();
 
-		//Loop through each pixel in the image stack, for each pixel make a float array 
-		//which will be our spectrum. For each of these spectra pass them to findCoefficients
-		//we use each e value returned as the final value of that pixel in the output FRET image.
+		//Loop through each pixel in the image stack. For each pixel make a 3D Spectrum.
+		// for each of these spectra pass them to findCoefficients
+		//For each e value returned, we can create a new image.
 
 		final int numSpectra = donorExcitationStack.getWidth() * donorExcitationStack.getHeight();
 
@@ -186,110 +186,67 @@ public class FRETProcessor3D
 		SDn.normaliseTo( donorQuantumYield );
 		SAn.normaliseTo( acceptorQuantumYield );
 
-		//save the raw arrays for quick access 
-		float SDnArray[][] = SDn.asArray();
-		float SAnArray[][] = SAn.asArray();
+		Spectrum3D FRETSpectrum = createFRETSpectrum( SDn, SAn );
 
-		final int emissionWavelengths = SD.getEmissionWavelengths();
+		//Combine the reference spectra into an array so we can use findCoefficients
+		float[][][] refs = new float[3][][];
+		refs[0] = SDn.asArray();
+		refs[1] = SAn.asArray();
+		refs[2] = FRETSpectrum.asArray();
+
+		//Create the blank image for our 'E-Value' image.
+		ImagePlus newImage = IJ.createImage( 	"E value image",
+								"32-bit",
+								donorExcitationStack.getWidth(),
+								donorExcitationStack.getHeight(), 1 );
 	
-		float sum_d[] = new float[excitationWavelengths];
-		float sum_a[] = new float[emissionWavelengths];
-	
-		////////////////////////////////////////////////////////////////
-		//Create the FRET spectrum 
-		/////////////////////////////////////////////////////////////////
-
-		for( int x = 0; x < excitationWavelengths; x++ )
-			for( int y = 0; y < emissionWavelengths; y++ )
-				sum_d[x] = sum_d[x] + SDnArray[x][y];
-
-
-		for( int x = 0; x < excitationWavelengths; x++ )
-			for( int y = 0; y < emissionWavelengths; y++ )
-				sum_a[y] = sum_a[y] + SAnArray[x][y];
-
-		//changes from original
-		//a and d normalised before making fret spectrum from them. no need for q3
-		//change q so that q3 is the fret spectrum total so that fret spectrum isnt normalised 
-
-		Spectrum3D FRETSpectrum = new Spectrum3D( excitationWavelengths, emissionWavelengths );
-		float FRETSpectrumArray[][] = FRETSpectrum.asArray();
-	
-		for( int y = 0; y < emissionWavelengths; y++ )
-			for( int x = 0; x < excitationWavelengths; x++ )
-				FRETSpectrum.setValue( x, y, sum_d[x] * sum_a[y] );
-
-		FRETSpectrum.displayInResultsWindow();
-
-
-		IJ.showMessage( "SA sum = " + SA.sum() ) ;
-		IJ.showMessage( "Fret Sum: " + FRETSpectrum.sum() );
-
-
-
-
-
-
-
-
-
-		/*
-		//Loop through each pixel in the image stack. For each pixel make a float array
-		//which will be our spectrum. For each of these spectrums pass them findCoefficients
-		//For each e value returned, we can create a new image.
-
-		final int numSpectra = donorExcitationStack.getWidth() * donorExcitationStack.getHeight();
-
-		//Normalise the required spectra to their quantum yield
-		Spectrum SDDn = new Spectrum( SDD );
-		Spectrum SADn = new Spectrum( SAD );
-
-		SDDn.normaliseTo( donorQuantumYield );
-		SADn.normaliseTo( acceptorQuantumYield );
-
-		//combine the reference spectra into an array
-		float[][] refs = new float[2][];
-		refs [0] = SDDn.asArray();
-		refs [1] = SADn.asArray();
-
-		ImagePlus newImage = IJ.createImage( "E value image",
-							  "32-bit", 
-							  donorExcitationStack.getWidth(),
-							  donorExcitationStack.getHeight(), 1 );
 		newImage.hide();
 		ImageProcessor image = newImage.getProcessor();
 
-		//Cache the image processors for each image in the stack
+		//Cache the processors for each image in the stack 
 		ImageProcessor[] processors = new ImageProcessor[ donorExcitationStack.getStackSize() ];
 		for( int i = 0; i < donorExcitationStack.getStackSize(); i++ )
 		{
 			processors[i] = donorExcitationStack.getStack().getProcessor(i + 1);
 		}
+		
+		
+		final int emissionWavelengths =  SDn.getEmissionWavelengths();
+		final int excitationWavelengths = SDn.getExcitationWavelengths();
+		final int numSlices = donorExcitationStack.getStack().getSize();
 
-		float[] spectrum = new float[ wavelengthsPerSample ];
+		float[][] spectrum = new float[ excitationWavelengths ][ emissionWavelengths ];
 		//for each 'pixel' or spectrum....
 		for( int specNum = 0; specNum  < numSpectra; specNum  ++ )
 		{
+			//calculate which pixel we are currently working with..
 			final int x = specNum % donorExcitationStack.getWidth();
 			final int y = specNum / donorExcitationStack.getHeight();
 			
-			//for each 'slice' in the stack, which is basically for each wavelength sample
-			for( int slice= 0; slice< wavelengthsPerSample; slice++ )
+			int emWavelength = 0;				//current emission wavelength
+			int exWavelength = -1;				//current excitation wavelength
+
+			//for each 'slice' in the stack
+			for( int slice= 0; slice < numSlices; slice++ )
 			{
-				spectrum[ slice ] = processors[slice].getPixelValue( x, y );
+				if( ( slice ) % emissionWavelengths == 0 )
+					exWavelength++;
+
+				emWavelength = (slice) % emissionWavelengths ;
+
+				spectrum[ exWavelength ][ emWavelength ] = processors[slice].getPixelValue( x, y );
 			}
 
 			//now that we have a spectrum for this pixel, put it through the coefficients solver...
 			double[] coefficients = findCoefficients( refs, spectrum );
 
-			float e = (float) (coefficients[1] / ( coefficients[0] + coefficients[1] ));
+			float e = (float) (coefficients[2] / ( coefficients[0] + coefficients[2] ));
 
 			//set the pixel...
 			image.putPixelValue( x, y, e );
-		} 
+		}
 
 		newImage.show();
-		*/
 	}
 
 	// Adapted from Ben Corry's original code
