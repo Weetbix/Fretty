@@ -250,7 +250,11 @@ public class FRETProcessor2D
 				spectrum[ slice ] = processors[slice].getPixelValue( x, y );
 			}
 		
-			if( max( spectrum ) > imageThreshold )
+			boolean belowThreshold = false;
+			if( max( spectrum ) < imageThreshold )
+				belowThreshold = true;
+
+			if( !belowThreshold )
 			{
 				if( crossExcitationCorrection )
 				{		
@@ -262,7 +266,7 @@ public class FRETProcessor2D
 
 					//check that the acceptor spectrum has some sort of number in it! other wise it will crash because
 					// the matrix is singular
-					if( max( acceptorSpectrum ) > 1 )
+					if( max( acceptorSpectrum ) > imageThreshold )
 					{
 						float Cex[] = makeCrossExCorrectionSpectrum( SADarray, SAAarray, acceptorSpectrum );
 
@@ -270,15 +274,27 @@ public class FRETProcessor2D
 						for( int i = 0; i < wavelengthsPerSample; i++ )
 							spectrum[i] = spectrum[i] - Cex[i];
 					}
+					else
+					{
+						belowThreshold = true;
+					}
 				}
 
-				//now that we have a spectrum for this pixel, put it through the coefficients solver...
-				double[] coefficients = findCoefficients( refs, spectrum );
+				if( !belowThreshold )
+				{
+					//now that we have a spectrum for this pixel, put it through the coefficients solver...
+					double[] coefficients = findCoefficients( refs, spectrum );
 
-				float e = (float) (coefficients[1] / ( coefficients[0] + coefficients[1] ));
+					float e = (float) (coefficients[1] / ( coefficients[0] + coefficients[1] ));
 
-				//set the pixel...
-				image.putPixelValue( x, y, e );
+					//set the pixel...
+					image.putPixelValue( x, y, e );
+				}
+				else
+				{
+					//the pixel falls below the threshold value, set it to zero
+					image.putPixelValue( x, y, 0 );
+				}
 			}
 			else
 			{
