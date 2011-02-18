@@ -12,6 +12,8 @@ public class FRETProcessor2D
 	int wavelengthsPerSample = 24;
 	float donorQuantumYield = 0.5f;
 	float acceptorQuantumYield = 0.5f;
+	float imageThreshold = 100.0f;			//Any pixels with values under this threshold will not be
+							//processed for create E value image
 
 	//Reference Spectra
 	Spectrum SDD;
@@ -127,8 +129,10 @@ public class FRETProcessor2D
 		return acceptorExcitationStack;
 	}
 
-
-
+	void setImageThreshold( float val )
+	{
+		imageThreshold = val;
+	}
 
 
 	///////////////////////////////////////////////////////////////////////////
@@ -245,29 +249,42 @@ public class FRETProcessor2D
 			{
 				spectrum[ slice ] = processors[slice].getPixelValue( x, y );
 			}
+		
+			if( max( spectrum ) > imageThreshold )
+			{
+				if( crossExcitationCorrection )
+				{		
+					//generate the spectrum from the acceptor stack
+					for( int slice= 0; slice< wavelengthsPerSample; slice++ )
+					{
+						acceptorSpectrum[ slice ] = acceptorProcessors[slice].getPixelValue( x, y );
+					}
 
-			if( crossExcitationCorrection )
-			{		
-				//generate the spectrum from the acceptor stack
-				for( int slice= 0; slice< wavelengthsPerSample; slice++ )
-				{
-					acceptorSpectrum[ slice ] = acceptorProcessors[slice].getPixelValue( x, y );
+					//check that the acceptor spectrum has some sort of number in it! other wise it will crash because
+					// the matrix is singular
+					if( max( acceptorSpectrum ) > 1 )
+					{
+						float Cex[] = makeCrossExCorrectionSpectrum( SADarray, SAAarray, acceptorSpectrum );
+
+						//remove the cross excitation part of the FRET spectrum
+						for( int i = 0; i < wavelengthsPerSample; i++ )
+							spectrum[i] = spectrum[i] - Cex[i];
+					}
 				}
 
-				float Cex[] = makeCrossExCorrectionSpectrum( SADarray, SAAarray, acceptorSpectrum );
+				//now that we have a spectrum for this pixel, put it through the coefficients solver...
+				double[] coefficients = findCoefficients( refs, spectrum );
 
-				//remove the cross excitation part of the FRET spectrum
-				for( int i = 0; i < wavelengthsPerSample; i++ )
-					spectrum[i] = spectrum[i] - Cex[i];
+				float e = (float) (coefficients[1] / ( coefficients[0] + coefficients[1] ));
+
+				//set the pixel...
+				image.putPixelValue( x, y, e );
 			}
-
-			//now that we have a spectrum for this pixel, put it through the coefficients solver...
-			double[] coefficients = findCoefficients( refs, spectrum );
-
-			float e = (float) (coefficients[1] / ( coefficients[0] + coefficients[1] ));
-
-			//set the pixel...
-			image.putPixelValue( x, y, e );
+			else
+			{
+				//the pixel falls below the threshold value, set it to zero
+				image.putPixelValue( x, y, 0 );
+			}
 		} 
 
 		newImage.show();
@@ -343,6 +360,17 @@ public class FRETProcessor2D
 			Cex[i] = (float) coefficients[0] * SAD[i];
 
 		return Cex;
+	}
+
+	private float max( float[] array )
+	{
+		float max = array[0];
+		for( int i = 1; i < array.length; i++ )
+		{
+			if( array[i] > max ) 
+				max = array[i];
+		}
+		return max;
 	}
 
 	//Checks that all params are setup correctly to call findEValue. 

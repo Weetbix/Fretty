@@ -31,8 +31,9 @@ class FrettyTopPanel extends JPanel
 		processor = fretp;
 
 		//CROSS EXCITATION check box
-		setLayout( new GridLayout( 4, 2 ) );
-		add( new JLabel( "Cross Excitation Correction" ) );
+		setLayout( new GridLayout( 5, 2 ) );
+		JLabel ceLabel = new JLabel( "Cross Excitation Correction" );
+		add( ceLabel );
 		JCheckBox crossCorrection = new JCheckBox();
 		crossCorrection.setSelected( true );
 		crossCorrection.addActionListener( 
@@ -47,7 +48,8 @@ class FrettyTopPanel extends JPanel
 				
 		add( crossCorrection );
 
-		add( new JLabel("Wavelengths Per Sample  " ) );
+		JLabel wpsLabel = new JLabel( "Wavelengths Per Sample  ");
+		add( wpsLabel  );
 		final JSpinner wavelengthsPerSample = new JSpinner( 
 			new SpinnerNumberModel( processor.getWavelengthsPerSample(), 1, 9999, 1 ) );
 		wavelengthsPerSample.addChangeListener( 
@@ -58,7 +60,8 @@ class FrettyTopPanel extends JPanel
 			});
 		add( wavelengthsPerSample );
 
-		add( new JLabel( "Donor quantum yield" ) );
+		JLabel dqYieldLabel = new JLabel( "Donor quantum yield" );
+		add( dqYieldLabel );
 		JSpinner donorQuantumYield = new JSpinner( 
 			new SpinnerNumberModel( (double) processor.getDonorQuantumYield(), 0, 1, 0.001 ) );
 		donorQuantumYield.addChangeListener(
@@ -70,7 +73,8 @@ class FrettyTopPanel extends JPanel
 			});
 		add( donorQuantumYield );
 
-		add( new JLabel( "Acceptor quantum yield" ) );
+		JLabel aqYieldLabel = new JLabel( "Acceptor quantum yield" );
+		add( aqYieldLabel );
 		JSpinner acceptorQuantumYield = new JSpinner( 
 			new SpinnerNumberModel( (double) processor.getAcceptorQuantumYield(), 0,1, 0.001 ) );
 		acceptorQuantumYield.addChangeListener(
@@ -81,6 +85,27 @@ class FrettyTopPanel extends JPanel
 				}
 			});
 		add( acceptorQuantumYield );
+
+		JLabel thresholdLabel = new JLabel( "Pixel intensity threshold" );
+		add( thresholdLabel  );
+		JSpinner threshold = new JSpinner( 
+			new SpinnerNumberModel( (double) processor.getAcceptorQuantumYield(), 0,4000, 0.1 ) );
+		threshold.setValue( (Object) new Float(100) );
+		threshold .addChangeListener(
+			new ChangeListener(){
+				public void stateChanged( ChangeEvent e ){
+					final JSpinner source = (JSpinner) e.getSource();
+					processor.setImageThreshold( ((Double) source.getValue()).floatValue() );
+				}
+			});
+		add( threshold );
+
+		//Tool tips!
+		ceLabel.setToolTipText( "Whether or not you wish to account for cross excitation correction (requires more samples and spectra)" );
+		wpsLabel.setToolTipText( "The number of wavelengths per sample in each spectrum (and stack)." );
+		dqYieldLabel.setToolTipText( "The quantum yield of the donor flurophore" );
+		aqYieldLabel.setToolTipText( "The quantum yield of the acceptor flurophore" );
+		thresholdLabel.setToolTipText( "Any pixel with a value less than this will not be calculated when creating an E-Value Image" );
 	}
 }
 
@@ -118,6 +143,11 @@ class FrettyCommonPanel extends JPanel
 		);
 		
 		add( bgReduction );
+
+		//Tool tips!
+		roiMan.setToolTipText( "Opens the ROI manager which you can use to select a region (required for ROI E value and creating spectra)" );
+		bgReduction.setToolTipText( "Removes the background from the currently active stack. Uses the current ROI and averages the values, " + 
+						"and then removes that value from all pixels in the image." );
 	}
 }
 
@@ -155,6 +185,10 @@ class FrettyReferenceSpectraPanel extends JPanel
 			}
 		});
 
+		//set the tool tips 
+		SDD.getLabel().setToolTipText( "The donor only sample with donor excitation" );
+		SAD.getLabel().setToolTipText( "The acceptor only sample with donor excitation" );
+		SAA.getLabel().setToolTipText( "The acceptor only samples with acceptor excitation" );
 
 		add( SDD );
 		add( SAD );
@@ -186,6 +220,11 @@ class FrettySpectraSelector extends JPanel
 	Spectrum spectrum;
 	SpectrumChangedEvent listener;
 
+	public JLabel getLabel()
+	{
+		return label;
+	}
+
 	public FrettySpectraSelector( String spectrumName )
 	{	
 		label = new JLabel( spectrumName );
@@ -206,6 +245,7 @@ class FrettySpectraSelector extends JPanel
 				}
 			}
 		});
+		create.setToolTipText( "Creates a spectrum from the currently active stack and ROIs (in ROI manager). Can handle multiple ROIs." );
 
 		//LOAD BUTTON
 		load.addActionListener( new ActionListener(){
@@ -232,6 +272,7 @@ class FrettySpectraSelector extends JPanel
 				}
 			}
 		});
+		load.setToolTipText( "Load a spectrum from a saved file" );
 
 		//SAVE BUTTON
 		save.addActionListener( new ActionListener(){
@@ -258,6 +299,7 @@ class FrettySpectraSelector extends JPanel
 				}
 			}
 		});
+		save.setToolTipText("Save the current spectrum to a file");
 
 		//VIEW BUTTON
 		view.addActionListener( new ActionListener(){
@@ -266,6 +308,7 @@ class FrettySpectraSelector extends JPanel
 			}
 
 		});
+		view.setToolTipText( "Displays the spectrum in an ImageJ results window" );
 
 		//CLEAR BUTTON
 		clear.addActionListener( new ActionListener(){
@@ -273,6 +316,7 @@ class FrettySpectraSelector extends JPanel
 				setSpectrum( null );
 			}
 		});
+		clear.setToolTipText( "Erase the spectrum in this slot" );
 
 		Insets buttonMargin = new Insets( 2,4,2,4 );
 		create.setMargin( 	buttonMargin  );
@@ -377,6 +421,7 @@ class FrettyFRETSamplesPanel extends JPanel
 					setStack( null );
 				}
 			});
+			clear.setToolTipText( "Remove the current stack selection.." );
 			menu.add( clear );
 
 			//Add a 'show stack' button to bring the stack to the front
@@ -388,6 +433,7 @@ class FrettyFRETSamplesPanel extends JPanel
 						stack.getWindow().show();
 				}
 			});
+			showStack.setToolTipText( "Brings the selected stack to the foreground" );
 			menu.add( showStack );
 
 			addMouseListener( new MouseAdapter(){
@@ -461,6 +507,9 @@ class FrettyFRETSamplesPanel extends JPanel
 				processor.setDonorExcitationStack( newstack );
 			}
 		});
+		donorStackButton.setToolTipText( 	"Click this button to choose the currently active stack as the donor excitation stack. " + 
+							"The donor excitation stack is the 'fret' image, the sample with both the donor and acceptor " + 
+							"being excited by the donor excitation wavelength." );
 
 		acceptorStackButton = new StackSelectorButton("Indicate acceptor excitation stack" );
 		acceptorStackButton.addActionListener( new ActionListener(){
@@ -470,6 +519,9 @@ class FrettyFRETSamplesPanel extends JPanel
 				processor.setAcceptorExcitationStack( newstack );
 			}
 		});
+		acceptorStackButton.setToolTipText( "Click this button to choose the currently active stack as the acceptor excitation stack. " + 
+							"The acceptor excitation stack is the image stack from the sample with both the donor and acceptor flurophores " +
+							"being excited by the acceptor excitation wavelength" );
 
 		JPanel buttonPanel = new JPanel();
 		GridBagConstraints c = new GridBagConstraints();
@@ -567,6 +619,7 @@ public class _2D_Deconvolution extends PlugInFrame
 					}
 				}
 			});
+			b.setToolTipText( "Creates a new image where each pixel represents the E value from the original stacks at that pixel position" );
 			p.add( b );
 
 			b = new JButton( "ROI FRET Values" );
@@ -646,6 +699,7 @@ public class _2D_Deconvolution extends PlugInFrame
 					}
 				}
 			});
+			b.setToolTipText( "Find the E value for the currently selected ROIs and settings" );
 			p.add( b );
 
 		add( p );
