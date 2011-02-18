@@ -569,6 +569,7 @@ public class _2D_Deconvolution extends PlugInFrame
 		super("2D Deconvolution");
 
 		setLayout( new BoxLayout(this, BoxLayout.Y_AXIS)) ;
+		setResizable( false );
 
 		/////////////////////////////////////////////////////////
 		//Setup gui and callbacks

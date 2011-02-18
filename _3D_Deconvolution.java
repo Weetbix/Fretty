@@ -31,7 +31,8 @@ class FrettyTopPanel3D extends JPanel
 		setLayout( new GridLayout( 3, 2 ) );
 
 		//How many excitation wavelengths there are per image stack
-		add( new JLabel("Excitation Wavelengths " ) );
+		JLabel ewlLabel = new JLabel("Excitation Wavelengths " );
+		add( ewlLabel );
 		final JSpinner excitationWavelengths = new JSpinner( new SpinnerNumberModel( 4, 1, 9999, 1 ) );
 		excitationWavelengths .addChangeListener( 
 			new ChangeListener(){
@@ -39,9 +40,12 @@ class FrettyTopPanel3D extends JPanel
 					processor.setExcitationWavelengths( (Integer) excitationWavelengths.getValue() );
 				}
 			});
+		ewlLabel.setToolTipText( 	"The number of excitation wavelengths in each spectrum. The number of emission wavelengths " + 
+						"will be automatically determined based on the size of the spectrum/stacks" );
 		add( excitationWavelengths );
 
-		add( new JLabel( "Donor quantum yield" ) );
+		JLabel dqyLabel = new JLabel( "Donor quantum yield" );
+		add( dqyLabel  );
 		JSpinner donorQuantumYield = new JSpinner( 
 			new SpinnerNumberModel( (double) processor.getDonorQuantumYield(), 0, 1, 0.001 ) );
 		donorQuantumYield.addChangeListener(
@@ -51,9 +55,11 @@ class FrettyTopPanel3D extends JPanel
 					processor.setDonorQuantumYield( ((Double)source.getModel().getValue()).floatValue() );
 				}
 			});
+		dqyLabel.setToolTipText( "The quantum yield of the donor flurophore" );
 		add( donorQuantumYield );
 
-		add( new JLabel( "Acceptor quantum yield" ) );
+		JLabel aqyLabel = new JLabel( "Acceptor quantum yield" );
+		add( aqyLabel );
 		JSpinner acceptorQuantumYield = new JSpinner( 
 			new SpinnerNumberModel( (double) processor.getAcceptorQuantumYield(), 0,1, 0.001 ) );
 		acceptorQuantumYield.addChangeListener(
@@ -63,6 +69,7 @@ class FrettyTopPanel3D extends JPanel
 					processor.setAcceptorQuantumYield( ((Double) source.getValue()).floatValue() );
 				}
 			});
+		aqyLabel.setToolTipText( "The quantum yield of the acceptor flurophore" );
 		add( acceptorQuantumYield );
 	}
 }
@@ -90,6 +97,7 @@ class FrettyCommonPanel3D extends JPanel
 					}
 				}
 			} );
+
 		commonPanel.add( roiMan );
 
 		//Does background reduction on the current stack
@@ -107,6 +115,11 @@ class FrettyCommonPanel3D extends JPanel
 		tabPanel.addTab( "Common Tools", commonPanel );
 		tabPanel.addTab( "Batching", new BatchingPanel() );
 		add( tabPanel );
+
+		//Tool tips!
+		roiMan.setToolTipText( "Opens the ROI manager which you can use to select a region (required for ROI E value and creating spectra)" );
+		bgReduction.setToolTipText( "Removes the background from the currently active stack. Uses the current ROI and averages the values, " + 
+						"and then removes that value from all pixels in the image." );
 	}
 }
 
@@ -122,6 +135,9 @@ class FrettyReferenceSpectraPanel3D extends JPanel
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) ); 
 		SD =  new FrettySpectraSelector3D( "SD", processor );
 		SA = 	new FrettySpectraSelector3D( "SA", processor );
+
+		SD.getLabel().setToolTipText( "The donor only 3D spectrum" );
+		SA.getLabel().setToolTipText( "The acceptor only 3D spectrum" );
 
 
 		//set all the callbacks, so the processor knows when a spectrum has changed...
@@ -162,6 +178,11 @@ class FrettySpectraSelector3D extends JPanel
 	SpectrumChangedEvent listener;
 	FRETProcessor3D processor;
 
+	public JLabel getLabel()
+	{
+		return label;
+	}
+
 	public FrettySpectraSelector3D( String spectrumName, FRETProcessor3D proc )
 	{	
 		processor = proc;
@@ -184,6 +205,7 @@ class FrettySpectraSelector3D extends JPanel
 				}
 			}
 		});
+		create.setToolTipText( "Creates a spectrum from the currently active stack and ROIs (in ROI manager). Can handle multiple ROIs." );
 
 		//LOAD BUTTON
 		load.addActionListener( new ActionListener(){
@@ -210,6 +232,7 @@ class FrettySpectraSelector3D extends JPanel
 				}
 			}
 		});
+		load.setToolTipText( "Load a spectrum from a saved file" );
 
 		//SAVE BUTTON
 		save.addActionListener( new ActionListener(){
@@ -236,6 +259,7 @@ class FrettySpectraSelector3D extends JPanel
 				}
 			}
 		});
+		save.setToolTipText("Save the current spectrum to a file");
 
 		//VIEW BUTTON
 		view.addActionListener( new ActionListener(){
@@ -244,6 +268,7 @@ class FrettySpectraSelector3D extends JPanel
 			}
 
 		});
+		view.setToolTipText( "Displays the spectrum in an ImageJ results window" );
 
 		//CLEAR BUTTON
 		clear.addActionListener( new ActionListener(){
@@ -251,6 +276,7 @@ class FrettySpectraSelector3D extends JPanel
 				setSpectrum( null );
 			}
 		});
+		clear.setToolTipText( "Erase the spectrum in this slot" );
 
 		Insets buttonMargin = new Insets( 2,4,2,4 );
 		create.setMargin( 	buttonMargin  );
@@ -334,6 +360,7 @@ class FrettyFRETSamplesPanel3D extends JPanel
 					setStack( null );
 				}
 			});
+			clear.setToolTipText( "Clears the current selection" );
 			menu.add( clear );
 
 			//Add a 'show stack' button to bring the stack to the front
@@ -345,6 +372,7 @@ class FrettyFRETSamplesPanel3D extends JPanel
 						stack.getWindow().show();
 				}
 			});
+			showStack.setToolTipText( "Brings the currently selected stack to the foreground" );
 			menu.add( showStack );
 
 			addMouseListener( new MouseAdapter(){
@@ -408,7 +436,7 @@ class FrettyFRETSamplesPanel3D extends JPanel
 		setBorder( new TitledBorder("FRET Sample") );
 		processor = the_processor; 
 
-		donorStackButton = new StackSelectorButton("Indicate donor excitation stack");
+		donorStackButton = new StackSelectorButton("Indicate donor acceptor stack");
 		donorStackButton.addActionListener( new ActionListener(){
 			public void actionPerformed( ActionEvent e ){
 				ImagePlus newstack = WindowManager.getCurrentImage();
@@ -416,6 +444,8 @@ class FrettyFRETSamplesPanel3D extends JPanel
 				processor.setDonorExcitationStack( newstack );
 			}
 		});
+		donorStackButton.setToolTipText( "Click this button to choose the currently active stack as the donor acceptor stack. " + 
+						       "This is the sample with both the donor and acceptor present" );
 
 		JPanel buttonPanel = new JPanel();
 		
@@ -454,6 +484,7 @@ public class _3D_Deconvolution extends PlugInFrame
 		super("3D Deconvolution");
 
 		setLayout( new BoxLayout(this, BoxLayout.Y_AXIS)) ;
+		setResizable( false );
 
 		/////////////////////////////////////////////////////////
 		//Setup gui and callbacks
@@ -504,6 +535,7 @@ public class _3D_Deconvolution extends PlugInFrame
 					}
 				}
 			});
+			b.setToolTipText( "Creates a new image where each pixel represents the E value from the original stacks at that pixel position" );
 			p.add( b );
 
 			b = new JButton( "ROI FRET Values" );
@@ -568,6 +600,7 @@ public class _3D_Deconvolution extends PlugInFrame
 					}
 				}
 			});
+			b.setToolTipText( "Find the E value for the currently selected ROIs and settings" );
 			p.add( b );
 
 		add( p );
