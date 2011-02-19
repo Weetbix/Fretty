@@ -1,0 +1,120 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fswiss\fcharset0 Arial;}}
+{\*\generator Msftedit 5.41.15.1507;}\viewkind4\uc1\pard\f0\fs20\par
+Fretty 2D deconvolution\par
+\par
+This tool is designed to calculate FRET efficiency from a series of microscope images collected with a spectral detector using a 2D spectral unmixing algorithm. This algorithm allows for bleed through of the donor emission into the acceptor emission channels to be directly accounted for improving the accuracy of the FRET calcualtion. A new image can be created in which each pixel contains the FRET efficiency value at that position, or the FRET efficiency can be calculated in a region of interest in the image. The direct excitation of the acceptor using the donor excitation wavelength can be corrected for if desired using the cross excitation function.\par
+\par
+For this tool to work a few simple guidelines must be followed when collecting the microscope data.\par
+\par
+1. Two excitation wavelengths are required, one designed to primarily excite the donor fluorophore and one to primarily excite the acceptor.\par
+2. The emission data should be collected for the same number and range of wavelengths in each case\par
+3. All  images, ie for donor only sample, acceptor only sample and mixed sample, should be taken with the same microscope settings (eg laser power, detector gain, pinhole)\par
+4. One set of reference spectra can be used for many mixed samples, provided the same microscope settings were used for collection\par
+5. When conducting cross excitation correction \par
+\tab a) acceptor only sample should be imaged using both donor and acceptor excitation without moving the field of view\par
+\tab b) The mixed sample (containing both donor and acceptor)  should be imaged using both donor and acceptor excitation without moving the field of view \par
+\par
+\par
+\par
+How to use Fretty 2D deconvolution\par
+\par
+Steps 1 and 2 only need to be followed to set up the analysis tool. Once these have been completed you can analyse as many samples as you like by following steps 3 and 4\par
+\par
+\par
+1. Enter the analysis parameters at the top of the interface:\par
+\tab Cross excitation correction: check this if you want to account for direct excitation of the acceptor fluorophores when using donorexcitation wavelength. Requires additional reference spectrum (SAA) and acceptor excitation stack\par
+\tab Wavelenths per sample: the number of emmision wavelengths in each sample, should correspond to the number of images in each stack. This should be the same for all the reference spectra and the excitation stacks\par
+\tab Donor quantum yield: the quantum yield of the donor fluorophore\par
+\tab Acceptor quantum yield: the quantum yield of the acceptor fluorophore\par
+\tab Pixel intensity threshold: A FRET image is only created for pixels for which at least one slice in the stack has a value above this threshold. Not required for ROI FRET analysis\par
+\par
+\par
+2. Create or Load the required reference spectra\par
+\tab Red in the spectrum name indicates no spectrum loaded, green indicates spectrum is loaded, grey ndicates spectrum is not required\par
+\par
+\tab SDD: Donor only sample with donor excitation\par
+\tab SAD: Acceptor only sample with donor excitation\par
+\tab SAA: Acceptor only sample with acceptor excitation. Only required when using cross excitation correction\par
+\par
+  To create reference spectra\par
+\tab For each reference spectra\par
+\tab\tab open image stack  (for example use File -> Import -> Image sequence in the main ImageJ window)\par
+\tab\tab draw background ROI -> press background reduction\par
+\tab\tab Open ROI manager\par
+\tab\tab For each cell of interest in the image, Draw foreground ROI and add to ROI manager\par
+\tab\tab Press 'create' to make the reference spectrum . This adds values for all currents ROIs to create a reference spectrum.\tab\tab\par
+\tab\tab Use optional save and view to store or look at spectrum data.\par
+\par
+\tab\tab Note that SDA and SAA spectra should be created using images of the exact same sample and the same ROIs \par
+\par
+  Load previously saved reference spectra using the load buttons\par
+\par
+3. Load images for analysis\par
+\tab Load in donor excitation stack\par
+\tab conduct background reduction\par
+\par
+\tab if using cross excitation correction \par
+\tab\tab Load in acceptor excitation stack\par
+\tab\tab conduct background reduction\par
+\par
+\tab Make donor excitation stack the active window (bring it the front) by click on it\par
+\tab Press Indicate donor excitation stack button to classify this stack\par
+\par
+\tab if using cross excitation correction \par
+\tab\tab Make acceptor excitation stack the active window (bring it the front) by click on it\par
+\tab\tab Press Indicate acceptor excitation stack button to classify this stack\par
+ \par
+\par
+4. FRET analysis\par
+\par
+To create a FRET image, in which each pixel is replaced by the FRET efficiency value at that position, click 'create FRET image'\par
+\par
+To calculate the FRET efficiency in a region of interest using the average intensities in the region, click 'ROI FRET values'\tab\par
+\par
+\par
+\par
+Glossary:\par
+\par
+\tab Stack: The stacks are always cotaining a series of images recorded at different emission wavelengths, ie from a spectral detector\par
+\tab Reference spectrum: Spectrum from donor only or acceptor only images, that will be used to analayse many samples\par
+\par
+\tab SDD: Reference spectrum from a donor only sample with donor excitation\par
+\tab SAD: Reference spectrum from an acceptor only sample with donor excitation\par
+\tab SAA: Reference spectrum from an acceptor only sample with acceptor excitation. Only required when using cross excitation correction\par
+\par
+\tab Donor excitation stack: Sample for FRET analysis (ie containing both donor and acceptor) obtained with donor excitation\par
+\tab Acceptor excitation stack: Sample for FRET analysis (ie containing both donor and acceptor) obtained with acceptor excitation\par
+\par
+\tab ROI: Region of interest\par
+\tab Background reduction: Used to remove the background signal. For each slice in the stack, subtracts the average intensity value of the current region of interest from all pixels in the image. \par
+\par
+\par
+Fretty 3D deconvolution\par
+\par
+This tool is designed to calculate FRET efficiency from a series of microscope images collected with a spectral detector and a range of excitation wavelengths using a 3D spectral unmixing algorithm. This algorithm allows for bleed through of the donor emission into the acceptor emission channels and direct excitation of the acceptor with the donor excitation to be directly accounted for. The concept is similar to the 2D algorithm, except now instead of each spectrum referring to the emission spectrum collected a a particular excitation wavlength, 3D spectra are used which contain the emission intensity for a range of both excitation and emission wavelengths.\par
+\par
+To collect data you need to collect the emission spectra using a spectral detector for a number of excitation wavelengths. The stacks used for analysis are ordered such that all the emission wavelgnths for one excitation are found in sequance before moving to the next excitation wavelength. For example if you had a stack with 40 slices corresponding to 4 excitation wavelengths, the first 10 slices would be the emission wavlengths at the first excitation wavelength. The next 10 slices would be the emission wavelengths for the second excitation wavelength and so forth.\par
+\par
+How to use Fretty 3D deconvolution\par
+\par
+1. Indicate the number of excitation wavelengths, the number of emission wavelengths per excitation will be automatically determined from the number of slices in each stack.\par
+   Set the donor and acceptor quantum yield.\par
+\par
+2. Create or load reference spectra\par
+\tab To create reference spectra:\par
+\tab\tab  load either the data from the donor only sample  or acceptor only sample into imageJ and create a stack ordered as described above.\par
+\tab\tab Conduct background reduction\par
+\tab\tab Create the reference spectrum using the create button. \par
+\tab\tab Use optional save and view to store or look at spectrum data.\par
+\par
+3. Load the data from the mixed sample into imageJ and create a stack ordered as described above. Conduct background reduction.\par
+\par
+4. FRET analysis\par
+\par
+\tab To create a FRET image, in which each pixel is replaced by the FRET efficiency value at that position, click 'create FRET image'\par
+\par
+\tab To calculate the FRET efficiency in a region of interest using the average intensities in the region, click 'ROI FRET values'\tab\par
+\par
+\par
+}
+ 
