@@ -373,7 +373,7 @@ public class FRETProcessor2D
 		// Cex = coeff[0] * SAD
 		float[] Cex = new float[wavelengthsPerSample];
 		for( int i = 0; i < wavelengthsPerSample; i++ )
-			Cex[i] = (float) coefficients[0] * SAD[i];
+			Cex[i] = (float) (1.0/coefficients[0]) * SAD[i];
 
 		return Cex;
 	}
